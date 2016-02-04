@@ -1,52 +1,16 @@
 function(input, output, session) {
   # Create the map
-  output$map <- renderLeaflet({
-    map <- leaflet() %>%
-      addTiles(urlTemplate = "//{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png") %>%
+  output$mapOrigin <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles('CartoDB.Positron') %>%
       setView(lng = 9.925, lat = 51.54, zoom = 12)
-    map
   })
-  output$map2 <- renderLeaflet({
-    map2 <- leaflet() %>%
-      addTiles(urlTemplate = "//{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png") %>%
+  output$mapDestination <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles('CartoDB.Positron') %>%
+      # addTiles(urlTemplate = '//{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png') %>%
       setView(lng = 9.925, lat = 51.54, zoom = 12)
-    map2
   })
-  
-  # TODO: Use for dynamic histogram
-#   tripsInBounds <- reactive({
-#     if (is.null(input$map_bounds))
-#       return(locationTrips[FALSE,])
-#     bounds <- input$map_bounds
-#     latRng <- range(bounds$north, bounds$south)
-#     lngRng <- range(bounds$east, bounds$west)
-#     
-#     subset(
-#       locationTrips,
-#       origin_lat >= latRng[1] & origin_lat <= latRng[2] &
-#         origin_lon >= lngRng[1] & origin_lon <= lngRng[2]
-#     )
-#   })
-#   
-#   # Precalculate the breaks we'll need for the  histograms
-#   # TODO: Display on the right side of the dashboard
-#   freqBreaks <-
-#     hist(plot = FALSE, locationTrips$freq, breaks = 30)$breaks
-#   
-#   output$histFreq <- renderPlot({
-#     if (nrow(tripsInBounds()) == 0)
-#       return(NULL)
-#     
-#     hist(
-#       tripsInBounds()$freq,
-#       breaks = freqBreaks,
-#       main = "Trip count (visible trips)",
-#       xlab = "Trip",
-#       xlim = range(locationTrips$freq),
-#       col = '#00DD00',
-#       border = 'white'
-#     )
-#   })
   
   # This observer is responsible for maintaining the circles and legend,
   # according to the variables the user has chosen to map to color and size.
@@ -54,65 +18,112 @@ function(input, output, session) {
   observe({
     dayBy <- input$day
     hourBy <- input$hour
-    # TODO: adapt circle size when zooming in.
-    leafletProxy("map", data = locationTripsOrigin) %>%
-      clearShapes() %>%
-      addCircles(
-        ~ origin_lon,
-        ~ origin_lat,
-        radius = ~ freq_r,
-        layerId = ~ origin_lon,
-        stroke = FALSE,
-        color = ~ freq_c,
-        fillOpacity = ~ 0.5
-      )
-    # Extract as function
-    leafletProxy("map2", data = locationTripsDestination) %>%
-      clearShapes() %>%
-      addCircles(
-        ~ destination_lon,
-        ~ destination_lat,
-        radius = ~ freq_r,
-        layerId = ~ destination_lon,
-        stroke = FALSE,
-        color = ~ freq_c,
-        fillOpacity = ~ 0.5
-      )
     
+    SetMapProxy('mapOrigin', locationTripsOrigin)
+    SetMapProxy('mapDestination', locationTripsDestination)
   })
   
   # Show a popup at the given location
-  showTripPopup <- function(lon, lat, lng) {
-    selectedTrip <- goevb[goevb$origin_lon == lon,]
-    selectedTrip <- selectedTrip[1,]
-    content <- as.character(
-      tagList(
-        tags$h4("Trip ID:", as.integer(selectedTrip$id)),
-        sprintf(
-          "Origin: %s, Latitude: %s Longitude: %s",
-          selectedTrip$origin, selectedTrip$origin_lat, selectedTrip$origin_lon
-        )
-        , tags$br(),
-        sprintf(
-          "Destination: %s, Latitude: %s Longitude: %s", selectedTrip$destination, selectedTrip$destination_lat, selectedTrip$destination_lon
-        ), tags$br(),
-        sprintf("Bus line(s): %s", selectedTrip$line), tags$br(),
-        sprintf("Datetime: %s", selectedTrip$datetime)
+  showTripPopup <- function(id, lat, lng, mapId) {
+    if (mapId == 'mapOrigin') {
+      theTrip <- locationTripsOrigin[locationTripsOrigin$id == id,]
+    } else {
+      theTrip <-
+        locationTripsDestination[locationTripsDestination$id == id,]
+    }
+    
+    content <- as.character(tagList(
+      tags$h4('Trip ID:', as.integer(theTrip$id)),
+      sprintf(
+        'Freq: %s, Latitude: %s Longitude: %s',
+        theTrip$freq, theTrip$latitude, theTrip$longitude
       )
+    ))
+    #     cat(file = stderr(), 'content: ' , content,  '\n')
+    
+    leafletProxy(mapId) %>% addPopups(
+      lng = theTrip$longitude, lat = theTrip$latitude, popup = content, layerId = theTrip$id
     )
-    leafletProxy("map") %>% addPopups(lng, lat, content, layerId = lon)
   }
   
-  # When map is clicked, show a popup with city info
-  observe({
-    leafletProxy("map") %>% clearPopups()
-    event <- input$map_shape_click
-    if (is.null(event))
-      return()
+  ## Origin map
+  
+  # When map is clicked, show a popup with trip info
+  observeEvent(input$mapOrigin_marker_click, ({
+    theEvent <- input$mapOrigin_marker_click
     
-    isolate({
-      showTripPopup(event$id, event$lat, event$lng)
-    })
+    leafletProxy('mapOrigin') %>% clearPopups()
+    showTripPopup(theEvent$id, theEvent$lat, theEvent$lng, 'mapOrigin')
+  }))
+  
+  tripsInBounds <- reactive({
+    if (is.null(input$mapOrigin_bounds)) {
+      return(locationTripsOrigin[FALSE,])
+    }
+    
+    bounds <- input$mapOrigin_bounds
+    latRng <- range(bounds$north, bounds$south)
+    lngRng <- range(bounds$east, bounds$west)
+    
+    subset(
+      locationTripsOrigin,
+      latitude >= latRng[1] & latitude <= latRng[2] &
+        longitude >= lngRng[1] & longitude <= lngRng[2]
+    )
   })
   
+  # Precalculate the breaks we'll need for the  histograms
+  freqBreaks <-
+    hist(plot = FALSE, locationTripsOrigin$freq, breaks = 30)$breaks
+  
+  output$histOrigin <- renderPlot({
+    if (nrow(tripsInBounds()) == 0) {
+      cat(file = stderr(), 'NOOOO', '\n')
+      return(NULL)
+    }
+    
+    hist(
+      tripsInBounds()$freq,
+      breaks = freqBreaks,
+      main = 'Trip count (visible trips)',
+      xlab = 'Trip',
+      xlim = range(tripsInBounds()$freq),
+      col = '#00DD00',
+      border = 'white'
+    )
+  })
+
+  output$consoleOrigin <- renderText({
+    xy_str <- function(e) {
+      if (is.null(e)) {
+        return("NULL\n")
+      }
+      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+    }
+    xy_range_str <- function(e) {
+      if (is.null(e)) {
+        return("NULL\n")
+      }
+      paste0(
+        "xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1),
+        " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1)
+      )
+    }
+    
+    paste0(
+      "click: ", xy_str(input$histOriginClick),
+      "dblclick: ", xy_str(input$hist_origin_dblclick),
+      "hover: ", xy_str(input$hist_origin_hover),
+      "brush: ", xy_range_str(input$hist_origin_brush)
+    )
+  })
+  
+  # ## Destination map
+  
+  observeEvent(input$mapDestination_marker_click, ({
+    theEvent <- input$mapDestination_marker_click
+    
+    leafletProxy('mapDestination') %>% clearPopups()
+    showTripPopup(theEvent$id, theEvent$lat, theEvent$lng, 'mapDestination')
+  }))
 }

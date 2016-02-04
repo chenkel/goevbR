@@ -25,8 +25,9 @@ GenerateRadius <- function(tripFreq) {
   #
   # Returns:
   #   The sample covariance between x and y.
-  
-  return(tripFreq)
+  maxTrip <- max(tripFreq)
+  maxCircleRadius = 20
+  return(maxCircleRadius * tripFreq / maxTrip)
 }
 
 GenerateAlpha <- function(tripFreq) {
@@ -65,4 +66,53 @@ GenerateColor <- function(tripFreq) {
   resultBlue <- (229 + percentFreq * (0 - 229)) / 255
   
   return(rgb(resultRed, resultGreen, resultBlue))
+}
+
+# SetMapLeafletProxyOptions <- function(proxy) {
+#   # TODO: adapt circle size when zooming in.
+#
+#   return(proxy)
+# }
+
+AggregateTrips <- function(lat, lng, startId) {
+  locationTrips <- as.data.frame(table(lat, lng))
+  # Gives the prior created columns names to address them.
+  names(locationTrips) <- c('latitude', 'longitude', 'freq')
+  # Add origin longitude to locationTripsOrigin.
+  locationTrips$longitude <-
+    as.numeric(as.character(locationTrips$longitude))
+  # Add origin latitude to locationTripsOrigin.
+  locationTrips$latitude <-
+    as.numeric(as.character(locationTrips$latitude))
+  # Filter out all Trips with freq = 0.
+  locationTrips <- (subset(locationTrips, freq > 0))
+  
+  locationTrips$freq_normalized <- NormalizeFreq(locationTrips$freq)
+  locationTrips$freq_a <-
+    GenerateAlpha(locationTrips$freq_normalized)
+  locationTrips$freq_c <-
+    GenerateColor(locationTrips$freq_normalized)
+  locationTrips$freq_r <-
+    GenerateRadius(locationTrips$freq_normalized)
+  
+  locationTrips$id <- seq.int(nrow(locationTrips)) + startId
+  locationTrips$id
+  
+  return(locationTrips)
+}
+
+SetMapProxy <- function(map, tripData) {
+  return(
+    leafletProxy(map, data = tripData) %>%
+      clearShapes() %>%
+      addCircleMarkers(
+        ~longitude,
+        ~latitude,
+        radius = ~freq_r,
+        color = ~freq_c,
+        fillOpacity = ~freq_a,
+        layerId = ~id,
+        stroke = FALSE
+      )
+  )
 }
