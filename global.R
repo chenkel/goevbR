@@ -3,6 +3,8 @@ if (!require("shiny"))
   install.packages("shiny")
 if (!require("data.table"))
   install.packages("data.table")
+if (!require("ggplot2"))
+  install.packages("ggplot2")
 if (!require("shinydashboard"))
   install.packages("shinydashboard")
 if (!require("leaflet"))
@@ -29,8 +31,11 @@ goevb$datetime <- strptime(goevb$datetime, format = '%d/%m/%Y:%H:%M:%S')
 goevb$day <- goevb$datetime$wday
 goevb$hour <- goevb$datetime$hour
 
-goevbFilteredByHour <- goevb[goevb$hour == 13, ]
+
+goevbFilteredByHour <- goevb
+# goevbFilteredByHour <- goevb[goevb$hour == 13, ]
 # bla <- aggregate(hour ~ origin_lat + origin_lon, data = goevbFilteredByHour, FUN = length)
+
 
 source('customFunctions.R')
 

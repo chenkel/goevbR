@@ -61,61 +61,65 @@ function(input, output, session) {
       return(locationTripsOrigin[FALSE,])
     }
     
+    
+    weekdayFilter <- input$weekdayOrigin
+    cat(file = stderr(), 'weekdayFilter: ', weekdayFilter, '\n')
+    
+#     goevbFilteredByDay = goevb[grep() ]
+#     
+#     goevb$
+    
+    
     bounds <- input$mapOrigin_bounds
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
     
     subset(
-      locationTripsOrigin,
-      latitude >= latRng[1] & latitude <= latRng[2] &
-        longitude >= lngRng[1] & longitude <= lngRng[2]
+      goevb,
+      origin_lat >= latRng[1] & origin_lat <= latRng[2] &
+        origin_lon >= lngRng[1] & origin_lon <= lngRng[2] 
     )
   })
   
   # Precalculate the breaks we'll need for the  histograms
-  freqBreaks <-
-    hist(plot = FALSE, locationTripsOrigin$freq, breaks = 30)$breaks
   
   output$histOrigin <- renderPlot({
     if (nrow(tripsInBounds()) == 0) {
-      cat(file = stderr(), 'NOOOO', '\n')
+      
       return(NULL)
     }
+    ggplot(tripsInBounds(), aes(x = factor(hour))) + geom_bar()
     
-    hist(
-      tripsInBounds()$freq,
-      breaks = freqBreaks,
-      main = 'Trip count (visible trips)',
-      xlab = 'Trip',
-      xlim = range(tripsInBounds()$freq),
-      col = '#00DD00',
-      border = 'white'
-    )
   })
 
   output$consoleOrigin <- renderText({
-    xy_str <- function(e) {
-      if (is.null(e)) {
-        return("NULL\n")
-      }
-      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
-    }
-    xy_range_str <- function(e) {
-      if (is.null(e)) {
-        return("NULL\n")
-      }
-      paste0(
-        "xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1),
-        " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1)
-      )
-    }
     
-    paste0(
-      "click: ", xy_str(input$histOriginClick),
-      "dblclick: ", xy_str(input$hist_origin_dblclick),
-      "hover: ", xy_str(input$hist_origin_hover),
-      "brush: ", xy_range_str(input$hist_origin_brush)
-    )
+    input$action # makes sure nothing moves till the button is hit
+    # isolate prevents datasetInput from reactively evaluating
+    input$weekdayOrigin 
+    
+#     xy_str <- function(e) {
+#       if (is.null(e)) {
+#         return("NULL\n")
+#       }
+#       paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+#     }
+#     xy_range_str <- function(e) {
+#       if (is.null(e)) {
+#         return("NULL\n")
+#       }
+#       paste0(
+#         "xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1),
+#         " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1)
+#       )
+#     }
+#     
+#     paste0(
+#       "click: ", xy_str(input$histOriginClick),
+#       "dblclick: ", xy_str(input$hist_origin_dblclick),
+#       "hover: ", xy_str(input$hist_origin_hover),
+#       "brush: ", xy_range_str(input$hist_origin_brush)
+#     )
   })
   
   # ## Destination map
