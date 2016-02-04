@@ -81,27 +81,23 @@ function(input, output, session) {
     
   })
   
-  # Show a popup at the given location
+  # Show a popup at the given location at map
   showTripPopup <- function(lon, lat, lng) {
     selectedTrip <- goevb[goevb$origin_lon == lon,]
     selectedTrip <- selectedTrip[1,]
     content <- as.character(
       tagList(
-        tags$h4("Trip ID:", as.integer(selectedTrip$id)),
+        tags$h4("Bus station:", selectedTrip$origin),
         sprintf(
-          "Origin: %s, Latitude: %s Longitude: %s",
-          selectedTrip$origin, selectedTrip$origin_lat, selectedTrip$origin_lon
-        )
-        , tags$br(),
-        sprintf(
-          "Destination: %s, Latitude: %s Longitude: %s", selectedTrip$destination, selectedTrip$destination_lat, selectedTrip$destination_lon
-        ), tags$br(),
-        sprintf("Bus line(s): %s", selectedTrip$line), tags$br(),
-        sprintf("Datetime: %s", selectedTrip$datetime)
-      )
-    )
+          "Latitude: %s Longitude: %s",
+          selectedTrip$origin_lat, selectedTrip$origin_lon),
+        tags$br()
+        #TODO: Frequency missing
+       # sprintf("Frequency: %s", locationTripsOrigin$freq), tags$br(),
+       ))
     leafletProxy("map") %>% addPopups(lng, lat, content, layerId = lon)
   }
+  
   
   # When map is clicked, show a popup with city info
   observe({
@@ -116,3 +112,27 @@ function(input, output, session) {
   })
   
 }
+# Show a popup at the given location at map2
+#showTripPopup2 <- function(lon, lat, lng)
+ # {selectedTrip2 <- goevb[goevb$destination_lon == lon,]
+  #selectedTrip2 <- selectedTrip2[1,]
+  #content <- as.character
+  #(tagList(tags$h4("Bus station:", selectedTrip2$destination),
+   #        sprintf("Latitude: %s Longitude: %s",
+                   #selectedTrips2$destination_lat, selectedTrip2$destination_lon),
+    #  tags$br()))
+  #leafletProxy("map2") %>% addPopups(lng, lat, content, layerId = lon)}
+
+
+# When map2 is clicked, show a popup with city info
+#observe({
+ # leafletProxy("map2") %>% clearPopups()
+ # event2 <- input$map_shape_click
+ # if (is.null(event2))
+ #   return()
+  
+ # isolate({
+ #   showTripPopup2(event2$id, event2$lat, event2$lng)
+ # })
+#})
+

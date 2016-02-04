@@ -7,12 +7,15 @@ if (!require("leaflet"))
   install.packages("leaflet")
 if (!require("dplyr"))
   install.packages("dplyr")
+if (!require("RColorBrewer"))
+  install.packages("RColorBrewer")
 
 # External Libraries
 library(shiny)
 library(shinydashboard)
 library(leaflet)
 library(dplyr)
+library(RColorBrewer)
 
 # Import data
 goevb = read.csv("alles.csv", stringsAsFactors = FALSE)
