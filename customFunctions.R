@@ -1,62 +1,20 @@
-# TODO: Create Function that gets all the shape for all routes.
-
 NormalizeFreq <- function(tripFreq) {
-  # Computes the sample covariance between two vectors.
-  #
-  # Args:
-  #   x: One of two vectors whose sample covariance is to be calculated.
-  #   y: The other vector. x and y must have the same length, greater than one,
-  #      with no missing values.
-  #   verbose: If TRUE, prints sample covariance; if not, not. Default is TRUE.
-  #
-  # Returns:
-  #   The sample covariance between x and y.
   return(as.integer((log2(tripFreq) * 10) ^ (1.2)))
 }
 
 GenerateRadius <- function(tripFreq) {
-  # Computes the sample covariance between two vectors.
-  #
-  # Args:
-  #   x: One of two vectors whose sample covariance is to be calculated.
-  #   y: The other vector. x and y must have the same length, greater than one,
-  #      with no missing values.
-  #   verbose: If TRUE, prints sample covariance; if not, not. Default is TRUE.
-  #
-  # Returns:
-  #   The sample covariance between x and y.
   maxTrip <- max(tripFreq)
   maxCircleRadius = 20
   return(maxCircleRadius * tripFreq / maxTrip)
 }
 
 GenerateAlpha <- function(tripFreq) {
-  # Computes the sample covariance between two vectors.
-  #
-  # Args:
-  #   x: One of two vectors whose sample covariance is to be calculated.
-  #   y: The other vector. x and y must have the same length, greater than one,
-  #      with no missing values.
-  #   verbose: If TRUE, prints sample covariance; if not, not. Default is TRUE.
-  #
-  # Returns:
-  #   The sample covariance between x and y.
   maxTrip <- max(tripFreq) * 2
   return(tripFreq / maxTrip)
 }
 
 
 GenerateColor <- function(tripFreq) {
-  # Computes the sample covariance between two vectors.
-  #
-  # Args:
-  #   x: One of two vectors whose sample covariance is to be calculated.
-  #   y: The other vector. x and y must have the same length, greater than one,
-  #      with no missing values.
-  #   verbose: If TRUE, prints sample covariance; if not, not. Default is TRUE.
-  #
-  # Returns:
-  #   The sample covariance between x and y.
   maxTrip <- max(tripFreq)
   percentFreq <- tripFreq / maxTrip
   # Hex Lowest: 00b8e5
@@ -68,13 +26,16 @@ GenerateColor <- function(tripFreq) {
   return(rgb(resultRed, resultGreen, resultBlue))
 }
 
-# SetMapLeafletProxyOptions <- function(proxy) {
-#   # TODO: adapt circle size when zooming in.
-#
-#   return(proxy)
-# }
+
 
 AggregateTrips <- function(lat, lng, startId) {
+  cat(file = stderr(), 'Aggregates Trips',  '\n')
+  cat(file = stderr(), 'l Trips', length(lat), '\n')
+  if (is.null(lat)  || length(lat) < 1) {
+    cat(file = stderr(), 'Lat or Lng is empty',  '\n')
+    return(goevb[FALSE,])
+  }
+  
   locationTrips <- as.data.frame(table(lat, lng))
   # Gives the prior created columns names to address them.
   names(locationTrips) <- c('latitude', 'longitude', 'freq')
@@ -101,18 +62,33 @@ AggregateTrips <- function(lat, lng, startId) {
   return(locationTrips)
 }
 
-SetMapProxy <- function(map, tripData) {
-  return(
-    leafletProxy(map, data = tripData) %>%
-      clearShapes() %>%
-      addCircleMarkers(
-        ~longitude,
-        ~latitude,
-        radius = ~freq_r,
-        color = ~freq_c,
-        fillOpacity = ~freq_a,
-        layerId = ~id,
-        stroke = FALSE
+AggregateAllTrips <- function(keptTrips, excludedTrips = NULL) {
+  # Aggregates all trips with the same origin latitude and longitude and count them.
+  # cat(file = stderr(), '!isNull', ,  '\n')
+  if (!is.null(keptTrips)  &&
+      length(keptTrips) > 0 && nrow(keptTrips) > 0) {
+    tripsOrig$kept <<-
+      AggregateTrips(keptTrips$origin_lat, keptTrips$origin_lon, 0)
+    tripsOrigLength <- nrow(tripsOrig$kept)
+    tripsDest$kept <<-
+      AggregateTrips(keptTrips$destination_lat, keptTrips$destination_lon, tripsOrigLength)
+  } else {
+    tripsOrig$kept$freq_r <<- 0
+    tripsDest$kept$freq_r <<- 0
+  }
+  
+  if (!is.null(excludedTrips) &&
+      length(excludedTrips) > 0 && nrow(excludedTrips) > 0) {
+    tripsOrig$excluded <<-
+      AggregateTrips(excludedTrips$origin_lat, excludedTrips$origin_lon, 0)
+    tripsOrigLength <- nrow(tripsOrig$excluded)
+    tripsDest$excluded <<-
+      AggregateTrips(
+        excludedTrips$destination_lat, excludedTrips$destination_lon, tripsOrigLength
       )
-  )
+  } else {
+    tripsOrig$excluded$freq_r <<- 0
+    tripsDest$excluded$freq_r <<- 0
+  }
+  
 }
