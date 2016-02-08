@@ -34,11 +34,10 @@ library(dplyr)
 library(RColorBrewer)
 
 # Import data
-<<<<<<< HEAD
+
 goevb = read.csv("alles.csv", sep=",", fileEncoding="UTF-8", stringsAsFactors = FALSE)
-=======
-goevb <- read.csv("alles.csv", stringsAsFactors = FALSE)
->>>>>>> 95b3b8c49a54cb1a5aff27f529bb707c41f50fdc
+
+
 
 # ## Converting the date to a recognizable format
 goevb$datetime <-
