@@ -26,23 +26,22 @@ function(input, output, session) {
                  destination_lon == lng)[, 4][1]
     }
     
-    content <- as.character(tagList(
-      tags$h4(stopName),
-      sprintf('Häufigkeit: %s', theTrip$freq),
-      br(),
-      br(),
-      sprintf('Breite: %s', round(theTrip$latitude, 4)),
-      br(),
-      sprintf('Länge: %s' ,round(theTrip$longitude, 4)),
-      br(),
-      br(),
-      modalButton(
-        "myModal",
-        label = "Details...",
-        icon = icon("server"),
-        
+    content <- as.character(
+      tagList(
+        tags$h4(stopName),
+        sprintf('Häufigkeit: %s', theTrip$freq),
+        br(),
+        br(),
+        sprintf('Breite: %s', round(theTrip$latitude, 4)),
+        br(),
+        sprintf('Länge: %s' ,round(theTrip$longitude, 4)),
+        br(),
+        br(),
+        modalButton("myModal",
+                    label = "Details...",
+                    icon = icon("server"),)
       )
-    ))
+    )
     #     cat(file = stderr(), 'content: ' , content,  '\n')
     
     leafletProxy(mapId) %>% addPopups(
@@ -97,7 +96,7 @@ function(input, output, session) {
     
   })
   
-  filterKeptTripsForStop <- function(lat, lng){
+  filterKeptTripsForStop <- function(lat, lng) {
     return(subset(keptTrips, origin_lat == lat & origin_lon == lng))
   }
   
@@ -114,7 +113,8 @@ function(input, output, session) {
     }
     ggplot(
       keptTrips, aes(x = hour, fill = day_f),
-      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5)  +
+      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5
+    )  +
       geom_bar() +
       coord_flip() +
       scale_x_continuous(limits = c(-0.5, 23.5),
@@ -124,27 +124,29 @@ function(input, output, session) {
       ylab("Häufigkeit") +
       theme(text = element_text(
         size = 17, family = "Source Sans Pro", colour = '#444444'
-      ))
+      )) + 
+      scale_fill_brewer(palette = "Greens", name = "Tag")
   })
   
   output$detailHistOrigin <- renderPlot({
-    
     if (nrow(keptTripsForStop) < 1) {
       return(NULL)
     }
     ggplot(
       keptTripsForStop, aes(x = hour, fill = day_f),
-      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5)  +
+      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5
+    )  +
       geom_bar() +
       coord_flip() +
       # ylim(0, length(goevbFiltered[,1])) +
-     scale_x_continuous(limits = c(-0.5, 23.5),
+      scale_x_continuous(limits = c(-0.5, 23.5),
                          breaks = c(0:23)) +
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
       theme(text = element_text(
         size = 17, family = "Source Sans Pro", colour = '#444444'
-              ))+ scale_fill_brewer(palette = "Greens", name="Tag")
+      )) + 
+      scale_fill_brewer(palette = "Greens", name = "Tag")
   })
   
   observeEvent(input$hist_origin_brush, {
@@ -172,7 +174,8 @@ function(input, output, session) {
     markerEvent <- input$mapDest_marker_click
     
     leafletProxy('mapDest') %>% clearPopups()
-    keptTripsForStop <<- filterKeptTripsForStop(markerEvent$lat, markerEvent$lng)
+    keptTripsForStop <<-
+      filterKeptTripsForStop(markerEvent$lat, markerEvent$lng)
     showTripPopup(markerEvent$id, markerEvent$lat, markerEvent$lng, 'mapDest')
   }))
   

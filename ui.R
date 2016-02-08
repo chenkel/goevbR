@@ -30,7 +30,7 @@ body <- dashboardBody(fluidRow(
              box(
                width = NULL, status = "success", solidHeader = FALSE,
                title = list(icon("map-o"), "Haltstellen"),
-               leafletOutput("mapOrig", height = 580)
+               leafletOutput("mapOrig", height = 540)
              )),
       column(
         width = 7,
