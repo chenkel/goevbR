@@ -36,7 +36,12 @@ function(input, output, session) {
       sprintf('Länge: %s' ,round(theTrip$longitude, 4)),
       br(),
       br(),
-      sprintf('Trip #%s', theTrip$id)
+      modalButton(
+        "myModal",
+        label = "Details...",
+        icon = icon("server"),
+        
+      )
     ))
     #     cat(file = stderr(), 'content: ' , content,  '\n')
     
@@ -57,8 +62,6 @@ function(input, output, session) {
   
   
   tripsInBoundsOrig <- reactive({
-    cat(file = stderr(), 'tripsInBoundsOrig called',  '\n')
-    cat(file = stderr(), 'shouldRedrawMapOrig: ', shouldRedrawMapOrig,  '\n')
     if (is.null(input$mapOrig_bounds)) {
       return(NULL)
     }
@@ -94,6 +97,10 @@ function(input, output, session) {
     
   })
   
+  filterKeptTripsForStop <- function(lat, lng){
+    return(subset(keptTrips, origin_lat == lat & origin_lon == lng))
+  }
+  
   observeEvent(input$weekdayOrigin, ({
     shouldRedrawMapOrig <<- TRUE
   }))
@@ -107,8 +114,27 @@ function(input, output, session) {
     }
     ggplot(
       keptTrips, aes(x = hour, fill = day_f),
-      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5
-    )  +
+      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5)  +
+      geom_bar() +
+      coord_flip() +
+      scale_x_continuous(limits = c(-0.5, 23.5),
+                         breaks = c(0:23)) +
+      scale_fill_discrete(name = "Tag") +
+      xlab("Uhrzeit") +
+      ylab("Häufigkeit") +
+      theme(text = element_text(
+        size = 17, family = "Source Sans Pro", colour = '#444444'
+      ))
+  })
+  
+  output$detailHistOrigin <- renderPlot({
+    
+    if (nrow(keptTripsForStop) < 1) {
+      return(NULL)
+    }
+    ggplot(
+      keptTripsForStop, aes(x = hour, fill = day_f),
+      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5)  +
       geom_bar() +
       coord_flip() +
       # ylim(0, length(goevbFiltered[,1])) +
@@ -142,42 +168,13 @@ function(input, output, session) {
     # trips$keeprows <<- xor(trips$keeprows, res$selected_)
   })
   
-  
-  output$consoleOrigin <- renderText({
-    # input$action # makes sure nothing moves till the button is hit
-    # isolate prevents datasetInput from reactively evaluating
-    # input$weekdayOrigin
-    
-    xy_str <- function(e) {
-      if (is.null(e)) {
-        return("NULL\n")
-      }
-      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
-    }
-    xy_range_str <- function(e) {
-      if (is.null(e)) {
-        return("NULL\n")
-      }
-      paste0(
-        "xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1),
-        " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1)
-      )
-    }
-    
-    paste0(
-      "click: ", xy_str(input$histOriginClick),
-      "dblclick: ", xy_str(input$hist_origin_dblclick),
-      "hover: ", xy_str(input$hist_origin_hover),
-      "brush: ", xy_range_str(input$hist_origin_brush)
-    )
-  })
-  
   # ## Destination map
   
   observeEvent(input$mapDest_marker_click, ({
     markerEvent <- input$mapDest_marker_click
     
     leafletProxy('mapDest') %>% clearPopups()
+    keptTripsForStop <<- filterKeptTripsForStop(markerEvent$lat, markerEvent$lng)
     showTripPopup(markerEvent$id, markerEvent$lat, markerEvent$lng, 'mapDest')
   }))
   
@@ -194,8 +191,8 @@ function(input, output, session) {
           theData$excluded$longitude,
           theData$excluded$latitude,
           radius = theData$excluded$freq_r,
-          color = "green",
-          fillOpacity = 0.1,
+          color = "yellow",
+          fillOpacity = theData$excluded$freq_a,
           layerId = theData$excluded$id,
           stroke = FALSE
         ) %>%

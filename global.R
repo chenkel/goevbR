@@ -51,6 +51,7 @@ tripFilter <- reactiveValues(
 )
 keptTrips <- goevb
 excludedTrips <- goevb[0, ]
+keptTripsForStop <- goevb
 
 tripsOrig <- NULL
 tripsDest <- NULL
