@@ -22,7 +22,7 @@ library(dplyr)
 library(RColorBrewer)
 
 # Import data
-goevb = read.csv("alles.csv", stringsAsFactors = FALSE)
+goevb = read.csv("alles.csv", sep=",", fileEncoding="UTF-8", stringsAsFactors = FALSE)
 
 # ## Converting the date to a recognizable format
 goevb$datetime <- strptime(goevb$datetime, format = '%d/%m/%Y:%H:%M:%S')
