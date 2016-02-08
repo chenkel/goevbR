@@ -1,20 +1,24 @@
 NormalizeFreq <- function(tripFreq) {
+  cat(file = stderr(), 'NormalizeFreq',  '\n')
   return(as.integer((log2(tripFreq) * 10) ^ (1.2)))
 }
 
 GenerateRadius <- function(tripFreq) {
+  cat(file = stderr(), 'GenerateRadius',  '\n')
   maxTrip <- max(tripFreq)
   maxCircleRadius = 20
   return(maxCircleRadius * tripFreq / maxTrip)
 }
 
 GenerateAlpha <- function(tripFreq) {
+  cat(file = stderr(), 'GenerateAlpha',  '\n')
   maxTrip <- max(tripFreq) * 2
   return(tripFreq / maxTrip)
 }
 
 
-GenerateColor <- function(tripFreq) { 
+GenerateColor <- function(tripFreq) {
+  cat(file = stderr(), 'GenerateColor',  '\n')
   maxTrip <- max(tripFreq)
   percentFreq <- tripFreq / maxTrip
   ## Hex Lowest: 00b8e5
@@ -63,6 +67,7 @@ AggregateTrips <- function(lat, lng, startId) {
 }
 
 AggregateAllTrips <- function(keptTrips, excludedTrips = NULL) {
+  cat(file = stderr(), 'AggregateAllTrips',  '\n')
   # Aggregates all trips with the same origin latitude and longitude and count them.
   # cat(file = stderr(), '!isNull', ,  '\n')
   if (!is.null(keptTrips)  &&
@@ -114,9 +119,10 @@ AggregateAllTrips <- function(keptTrips, excludedTrips = NULL) {
 #'   header = tags$h3("Help for my app"),
 #'   content = tags$p("Some detailed help"))
 #'
-showModalButton <-
+modalButton <-
   function(inputId, label, icon = NULL, header = "", content = "")
   {
+    cat(file = stderr(), 'modalButton',  '\n')
     # create the button
     button <- tags$button(
       type = "button",
@@ -125,103 +131,48 @@ showModalButton <-
       `data-target` = paste0("#", inputId, sep = ""),
       list(icon, label)
     )
-#     <a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
-#       
-#       <!-- Modal -->
-#       <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-#         <div class="modal-header">
-#           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-#             <h3 id="myModalLabel">Modal header</h3>
-#               </div>
-#               <div class="modal-body">
-#                 <p>One fine body…</p>
-#                 </div>
-#                 <div class="modal-footer">
-#                   <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-#                     <button class="btn btn-primary">Save changes</button>
-#                       </div>
-#                       </div>
-#                       
-    # create the window
-#     window <- tags$div(
-#       id = inputId,
-#       class = "modal hide fade",
-#       tabindex = "-1",
-#       role = "dialog",
-#       `aria-labelledby` = paste0(inputId, "Label"),
-#       `aria-hidden` = "true",
-#       tags$div(
-#         class = "modal-dialog",
-#         tags$div(
-#           class = "modal-content",
-#           tags$div(
-#             class = "modal-header",
-#             tags$button(
-#               type = "button",
-#               class = "close",
-#               `data-dismiss` = "modal",
-#               `aria-hidden` = "true",
-#               "x"
-#             ),
-#             tags$h4(class = "modal-body",
-#                     tags$html(id = paste0(inputId, "Label"), header))
-#           ),
-#           tags$div(class = "modal-body",
-#                    content),
-#           tags$div(
-#             class = "modal-footer",
-#             tags$button(
-#               class = "btn",
-#               `data-dismiss` = "modal",
-#               `aria-hidden` = "true",
-#               "Close"
-#             )
-#           )
-#         )
-#       )
-#     )
-    # tags$html(button, window)
+    
     tags$html(button)
   }
 
-detailModal <- function(inputId, header = "", content = "") {
+detailModal <- function(inputId, header = ' ', content = ' ') {
+  cat(file = stderr(), 'detailModal',  '\n')
   # create the window
-      modal <- tags$div(
-        id = inputId,
-        class = "modal fade",
-        tabindex = "-1",
-        role = "dialog",
-        `aria-labelledby` = paste0(inputId, "Label"),
-        `aria-hidden` = "false",
+  modal <- tags$div(
+    id = inputId,
+    class = "modal fade",
+    tabindex = "-1",
+    role = "dialog",
+    `aria-labelledby` = paste0(inputId, "Label"),
+    `aria-hidden` = "false",
+    tags$div(
+      class = "modal-dialog",
+      tags$div(
+        class = "modal-content",
         tags$div(
-          class = "modal-dialog",
-          tags$div(
-            class = "modal-content",
-            tags$div(
-              class = "modal-header",
-              tags$button(
-                type = "button",
-                class = "close",
-                `data-dismiss` = "modal",
-                `aria-hidden` = "true",
-                "x"
-              ),
-              tags$h4(class = "modal-body",
-                      tags$html(id = paste0(inputId, "Label"), header))
-            ),
-            tags$div(class = "modal-body",
-                     content),
-            tags$div(
-              class = "modal-footer",
-              tags$button(
-                class = "btn",
-                `data-dismiss` = "modal",
-                `aria-hidden` = "true",
-                "Close"
-              )
-            )
+          class = "modal-header",
+          tags$button(
+            type = "button",
+            class = "close",
+            `data-dismiss` = "modal",
+            `aria-hidden` = "true",
+            "x"
+          ),
+          tags$h4(header)
+        ),
+        tags$div(class = "modal-body",
+                 content),
+        tags$div(
+          class = "modal-footer",
+          tags$button(
+            class = "btn",
+            `data-dismiss` = "modal",
+            `aria-hidden` = "true",
+            "Close"
           )
         )
       )
+    )
+  )
   tags$html(modal)
 }

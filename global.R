@@ -20,6 +20,8 @@ if (!require("dplyr"))
   install.packages("dplyr")
 if (!require("RColorBrewer"))
   install.packages("RColorBrewer")
+if (!require("ISOweek"))
+  install.packages("ISOweek")
 
 # External Libraries
 library(shiny)
@@ -32,11 +34,12 @@ library(extrafont)
 library(leaflet)
 library(dplyr)
 library(RColorBrewer)
+library(ISOweek)
+
 
 # Import data
 
-goevb = read.csv("alles.csv", sep=",", fileEncoding="UTF-8", stringsAsFactors = FALSE)
-
+goevb = read.csv("alles.csv", sep = ",", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 
 
 # ## Converting the date to a recognizable format
@@ -45,16 +48,20 @@ goevb$datetime <-
 
 # ## Getting the day and hour of each trip
 goevb$day <- goevb$datetime$wday
-goevb$day_f <- factor(goevb$day, labels = c("So","Mo","Di","Mi","Do","Fr","Sa"))
+goevb$day[goevb$day == 0] = 7 
+goevb$day_f <- factor(goevb$day, labels = c("Mo","Di","Mi","Do","Fr","Sa", "So"))
 goevb$hour <- goevb$datetime$hour
 goevb$hour_f <- factor(goevb$hour)
 tripFilter <- reactiveValues(
  hour = c(0:23),
- weekday = c(0:6)
+ weekday = c(1:7)
 )
 keptTrips <- goevb
 excludedTrips <- goevb[0, ]
-keptTripsForStop <- goevb
+
+keptTripsForStop <- reactiveValues(
+  data = goevb
+) 
 
 tripsOrig <- NULL
 tripsDest <- NULL

@@ -4,60 +4,59 @@ body <- dashboardBody(fluidRow(
   tabBox(
     title = "Busfahren in Göttingen",
     id = "tabsetOrig", width = NULL, height = NULL,
-    tabPanel(list(icon("dot-circle-o"), "Start"),(fluidRow(
-      column(
-        width = 12,
-        box(
-          width = NULL, status = "success", solidHeader = TRUE,
-          title = list(icon("calendar-check-o"), "Wochentage filtern..."), collapsed = TRUE, collapsible = TRUE,
-          checkboxGroupInput(
-            "weekdayOrigin", NULL,
-            c(
-              "Montag" = 1,
-              "Dienstag" = 2,
-              "Mittwoch" = 3,
-              "Donnerstag" = 4,
-              "Freitag" = 5,
-              "Samstag" = 6,
-              "Sonntag" = 0
-            ),
-            inline = TRUE,
-            selected = c(0, 1, 2, 3, 4, 5, 6)
-          )
-        )
-      ),
-      column(width = 5,
-             box(
-               width = NULL, status = "success", solidHeader = FALSE,
-               title = list(icon("map-o"), "Haltstellen"),
-               leafletOutput("mapOrig", height = 540)
-             )),
-      column(
-        width = 7,
-        box(
-          width = NULL, status = "success", solidHeader = FALSE,
-          title = list(icon("tasks"), "Anzahl der Fahrten im aktuellen Kartenausschnitt"),
-          plotOutput(
-            "histOrigin", height = 540,
-            click = "histOriginClick",
-            dblclick = "hist_origin_dblclick",
-            hover = "hist_origin_hover",
-            brush = brushOpts(
-              id = "hist_origin_brush",
-              direction = "y"
+    tabPanel(list(icon("dot-circle-o"), "Start"),(
+      fluidRow(
+        column(
+          width = 12,
+          box(
+            width = NULL, status = "success", solidHeader = TRUE,
+            title = list(icon("calendar-check-o"), "Wochentage filtern..."),
+            collapsed = TRUE, collapsible = TRUE,
+            checkboxGroupInput(
+              "weekdayOrigin", NULL,
+              c(
+                "Montag" = 1,
+                "Dienstag" = 2,
+                "Mittwoch" = 3,
+                "Donnerstag" = 4,
+                "Freitag" = 5,
+                "Samstag" = 6,
+                "Sonntag" = 7
+              ),
+              inline = TRUE,
+              selected = c(1, 2, 3, 4, 5, 6, 7)
             )
           )
-        )
-      ),
-      column(
-        width = 5,
-        textOutput('consoleOrigin')
-      ),
-      column(
-        width = 7,
-        actionButton("exclude_reset", "Reset")
+        ),
+        column(
+          width = 5,
+          box(
+            width = NULL, status = "success", solidHeader = FALSE,
+            title = list(icon("map-o"), "Haltstellen"),
+            leafletOutput("mapOrig", height = 540)
+          )
+        ),
+        column(
+          width = 7,
+          box(
+            width = NULL, status = "success", solidHeader = FALSE,
+            title = list(
+              icon("tasks"), "Anzahl der Fahrten im aktuellen Kartenausschnitt"
+            ),
+            plotOutput(
+              "histOrigin", height = 540,
+              click = "histOriginClick",
+              dblclick = "hist_origin_dblclick",
+              hover = "hist_origin_hover",
+              brush = brushOpts(id = "hist_origin_brush",
+                                direction = "y")
+            )
+          )
+        ),
+        column(width = 7,
+               actionButton("exclude_reset", "Reset"))
       )
-    ))),
+    )),
     tabPanel(list(icon("flag-o"), "Ziel"),  (fluidRow(
       column(
         width = 12,
@@ -73,10 +72,10 @@ body <- dashboardBody(fluidRow(
               "Donnerstag" = 4,
               "Freitag" = 5,
               "Samstag" = 6,
-              "Sonntag" = 0
+              "Sonntag" = 7
             ),
             inline = TRUE,
-            selected = c(0, 1, 2, 3, 4, 5, 6)
+            selected = c(1, 2, 3, 4, 5, 6, 7)
           )
         )
       ),
@@ -102,23 +101,14 @@ body <- dashboardBody(fluidRow(
     )))
   )
 ),
-detailModal(
-  "myModal",
-  header = tags$h3(" "),
-  content = tags$html(
-    plotOutput(
-      "detailHistOrigin", height = 540,
-      click = "histOriginClick",
-      dblclick = "hist_origin_dblclick",
-      hover = "hist_origin_hover",
-      brush = brushOpts(
-        id = "hist_origin_brush",
-        direction = "y"
-      )
-    )
-  )
-)
-)
+detailModal("myModal"))
+#               header = textOutput('detailModalTitle', inline = FALSE),
+#               content = tags$html(
+#                 plotOutput(
+#                   "detailHistOrigin",
+#                   height = 540
+#                 )
+#               )))))
 
 
 
