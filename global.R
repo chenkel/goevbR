@@ -5,6 +5,13 @@ if (!require("data.table"))
   install.packages("data.table")
 if (!require("ggplot2"))
   install.packages("ggplot2")
+if (!require("Cairo"))
+  install.packages("Cairo")
+if (!require("scales"))
+  install.packages("scales")
+
+if (!require("extrafont"))
+  install.packages("extrafont")
 if (!require("shinydashboard"))
   install.packages("shinydashboard")
 if (!require("leaflet"))
@@ -17,29 +24,47 @@ if (!require("RColorBrewer"))
 # External Libraries
 library(shiny)
 library(shinydashboard)
+library(ggplot2)
+library(Cairo)
+library(scales)
+library(data.table)
+library(extrafont)
 library(leaflet)
 library(dplyr)
 library(RColorBrewer)
 
 # Import data
+<<<<<<< HEAD
 goevb = read.csv("alles.csv", sep=",", fileEncoding="UTF-8", stringsAsFactors = FALSE)
+=======
+goevb <- read.csv("alles.csv", stringsAsFactors = FALSE)
+>>>>>>> 95b3b8c49a54cb1a5aff27f529bb707c41f50fdc
 
 # ## Converting the date to a recognizable format
-goevb$datetime <- strptime(goevb$datetime, format = '%d/%m/%Y:%H:%M:%S')
+goevb$datetime <-
+  strptime(goevb$datetime, format = '%d/%m/%Y:%H:%M:%S')
 
 # ## Getting the day and hour of each trip
 goevb$day <- goevb$datetime$wday
+goevb$day_f <- factor(goevb$day, labels = c("So","Mo","Di","Mi","Do","Fr","Sa"))
 goevb$hour <- goevb$datetime$hour
+goevb$hour_f <- factor(goevb$hour)
+tripFilter <- reactiveValues(
+ hour = c(0:23),
+ weekday = c(0:6)
+)
+keptTrips <- goevb
+excludedTrips <- goevb[0, ]
 
+tripsOrig <- NULL
+tripsDest <- NULL
 
-goevbFilteredByHour <- goevb
-# goevbFilteredByHour <- goevb[goevb$hour == 13, ]
-# bla <- aggregate(hour ~ origin_lat + origin_lon, data = goevbFilteredByHour, FUN = length)
+trips <- reactiveValues(
+  keeprows = rep(TRUE, nrow(goevb))
+)
 
+shouldRedrawMapOrig <- FALSE
 
 source('customFunctions.R')
 
-# Aggregates all trips with the same origin latitude and longitude and count them.
-locationTripsOrigin <- AggregateTrips(goevbFilteredByHour$origin_lat, goevbFilteredByHour$origin_lon, 0)
-locationTripsOriginLength <- length(locationTripsOrigin[,1])
-locationTripsDestination <- AggregateTrips(goevbFilteredByHour$destination_lat, goevbFilteredByHour$destination_lon, locationTripsOriginLength)
+AggregateAllTrips(keptTrips)
