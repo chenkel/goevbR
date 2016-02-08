@@ -138,15 +138,13 @@ function(input, output, session) {
       geom_bar() +
       coord_flip() +
       # ylim(0, length(goevbFiltered[,1])) +
-      # scale_x_continuous() +
-      scale_x_continuous(limits = c(-0.5, 23.5),
+     scale_x_continuous(limits = c(-0.5, 23.5),
                          breaks = c(0:23)) +
-      scale_fill_discrete(name = "Tag") +
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
       theme(text = element_text(
         size = 17, family = "Source Sans Pro", colour = '#444444'
-      ))
+              ))+ scale_fill_brewer(palette = "Greens", name="Tag")
   })
   
   observeEvent(input$hist_origin_brush, {
@@ -192,7 +190,7 @@ function(input, output, session) {
           theData$excluded$latitude,
           radius = theData$excluded$freq_r,
           color = "yellow",
-          fillOpacity = theData$excluded$freq_a,
+          fillOpacity = 0.1,
           layerId = theData$excluded$id,
           stroke = FALSE
         ) %>%

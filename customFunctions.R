@@ -14,14 +14,14 @@ GenerateAlpha <- function(tripFreq) {
 }
 
 
-GenerateColor <- function(tripFreq) {
+GenerateColor <- function(tripFreq) { 
   maxTrip <- max(tripFreq)
   percentFreq <- tripFreq / maxTrip
-  # Hex Lowest: 00b8e5
-  # Hex Highest: bf0000
+  ## Hex Lowest: 00b8e5
+  ## Hex Highest: bf0000
   resultRed <- (0 + percentFreq * (191 - 0)) / 255
-  resultGreen <- (184 + percentFreq * (0 - 184)) / 255
-  resultBlue <- (229 + percentFreq * (0 - 229)) / 255
+  resultGreen <- (204 + percentFreq * (0 - 204)) / 255
+  resultBlue <- (0 + percentFreq * (0 - 0)) / 255
   
   return(rgb(resultRed, resultGreen, resultBlue))
 }
