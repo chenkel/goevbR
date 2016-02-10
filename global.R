@@ -1,77 +1,57 @@
-# Install required packages if not exist
-if (!require("shiny"))
-  install.packages("shiny")
-if (!require("data.table"))
-  install.packages("data.table")
-if (!require("ggplot2"))
-  install.packages("ggplot2")
-if (!require("Cairo"))
-  install.packages("Cairo")
-if (!require("scales"))
-  install.packages("scales")
+# ## Install and load external packages
+source('externalLibs.R')
 
-if (!require("extrafont"))
-  install.packages("extrafont")
-if (!require("shinydashboard"))
-  install.packages("shinydashboard")
-if (!require("leaflet"))
-  install.packages("leaflet")
-if (!require("dplyr"))
-  install.packages("dplyr")
-if (!require("RColorBrewer"))
-  install.packages("RColorBrewer")
-if (!require("ISOweek"))
-  install.packages("ISOweek")
-
-# External Libraries
-library(shiny)
-library(shinydashboard)
-library(ggplot2)
-library(Cairo)
-library(scales)
-library(data.table)
-library(extrafont)
-library(leaflet)
-library(dplyr)
-library(RColorBrewer)
-library(ISOweek)
-
-
-# Import data
-
-goevb = read.csv("alles.csv", sep = ",", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
-
+# ## Import data
+goevb = read.csv(
+  "goevb.csv",
+  sep = ",",
+  fileEncoding = "UTF-8",
+  stringsAsFactors = FALSE
+)
 
 # ## Converting the date to a recognizable format
 goevb$datetime <-
   strptime(goevb$datetime, format = '%d/%m/%Y:%H:%M:%S')
 
-# ## Getting the day and hour of each trip
+# ## Get the day and hour of each trip
 goevb$day <- goevb$datetime$wday
-goevb$day[goevb$day == 0] = 7 
-goevb$day_f <- factor(goevb$day, labels = c("Mo","Di","Mi","Do","Fr","Sa", "So"))
+# start week by Monday(1) and end by Sunday(7)
+goevb$day[goevb$day == 0] = 7
+goevb$day_f <-
+  factor(goevb$day, labels = c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"))
 goevb$hour <- goevb$datetime$hour
 goevb$hour_f <- factor(goevb$hour)
-tripFilter <- reactiveValues(
- hour = c(0:23),
- weekday = c(1:7)
-)
-keptTrips <- goevb
-excludedTrips <- goevb[0, ]
 
-keptTripsForStop <- reactiveValues(
-  data = goevb
-) 
 
-tripsOrig <- NULL
-tripsDest <- NULL
+# ## Initially add all trips to keptTrips
 
-trips <- reactiveValues(
-  keeprows = rep(TRUE, nrow(goevb))
-)
+# # ## ExcludedTrips initially empty
+# excludedTrips <- goevb[0,]
 
-shouldRedrawMapOrig <- FALSE
+# setup trip filters
+tripFilterOrig <- reactiveValues(hour = c(0:23),
+                                 weekday = c(1:7))
+# boolean flag as a filter (non destructive)
+shouldKeepOrig <- reactiveValues(flag = rep(TRUE, nrow(goevb)))
+# filtered trips (with tripFilters, see tripsInBoundsOrig)
+tripsOrig <- reactiveValues(kept = goevb,
+                            excluded = goevb[0, ])
+# aggregated trips for the heatmap
+agTripsOrig <- reactiveValues(kept = NULL,
+                              excluded = NULL)
+# chosen bus stop (used for detailModal)
+chosenStopOrig <- reactiveValues(trips = goevb, name = ' ')
+# shouldRedrawMapOrig <- TRUE
+
+# ## Same as above (see Orig's comments)
+tripFilterDest <- reactiveValues(hour = c(0:23),
+                                 weekday = c(1:7))
+shouldKeepDest <- reactiveValues(flag = rep(TRUE, nrow(goevb)))
+tripsDest <- reactiveValues(kept = goevb,
+                            excluded = goevb[0, ])
+agTripsDest <- reactiveValues(kept = NULL,
+                              excluded = NULL)
+chosenStopDest <- reactiveValues(trips = goevb, name = ' ')
+# shouldRedrawMapDest <- TRUE
 
 source('customFunctions.R')
-
-AggregateAllTrips(keptTrips)

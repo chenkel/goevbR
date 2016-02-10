@@ -1,203 +1,244 @@
 function(input, output, session) {
-  # Create the map
+  # ## Create the leaflet origin map
   output$mapOrig <- renderLeaflet({
     leaflet() %>%
       addProviderTiles('CartoDB.Positron') %>%
-      setView(lng = 9.925, lat = 51.54, zoom = 12)
+      setView(lng = 9.925,
+              lat = 51.54,
+              zoom = 12)
   })
+  # ## Create the leaflet destination map
   output$mapDest <- renderLeaflet({
     leaflet() %>%
       addProviderTiles('CartoDB.Positron') %>%
-      # addTiles(urlTemplate = '//{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png') %>%
-      setView(lng = 9.925, lat = 51.54, zoom = 12)
+      setView(lng = 9.925,
+              lat = 51.54,
+              zoom = 12)
   })
-  
-  getStopName <- function(lat, lng, orig3dest4) {
-    cat(file = stderr(), 'getStopName called: ', '\n')
-    return(subset(goevb, origin_lat == lat & origin_lon == lng)[, orig3dest4][1])
+  # ## Retrieves the stop name from given latitude and longitude from the goevb dataset.
+  GetStopName <- function(lat, lng, orig0dest1) {
+    if (orig0dest1 == 0) {
+      return(subset(goevb, origin_lat == lat & origin_lon == lng)[, 3][1])
+    } else if (orig0dest1 == 1) {
+      return(subset(goevb, destination_lat == lat &
+                      destination_lon == lng)[, 4][1])
+    }
   }
   
-  output$detailModalTitle <- renderText(
-    keptTripsForStop$data[1, 3]
-  )
-  
-  # Show a popup at the given location
+  # ## Show a popup for the chosen location with basic information
   showTripPopup <- function(id, lat, lng, mapId) {
-    cat(file = stderr(), 'showTripPopup called',  '\n')
     if (mapId == 'mapOrig') {
-      theTrip <- tripsOrig$kept[tripsOrig$kept$id == id,]
-      stopName <- getStopName(lat, lng, 3)
+      chosenTrip <- agTripsOrig$kept[agTripsOrig$kept$id == id, ]
+      stopName <- GetStopName(lat, lng, 0)
+      modalId <- 'origModal'
     } else {
-      theTrip <-
-        tripsDest$kept[tripsDest$kept$id == id,]
-      stopName <- getStopName(lat, lng, 4)
+      chosenTrip <-
+        agTripsDest$kept[agTripsDest$kept$id == id, ]
+      stopName <- GetStopName(lat, lng, 1)
+      modalId <- 'destModal'
     }
-    
+    # Construct HTML content
     content <- as.character(
       tagList(
         tags$h4(stopName),
-        sprintf('Häufigkeit: %s', theTrip$freq),
+        sprintf('Häufigkeit: %s', chosenTrip$freq),
         br(),
         br(),
-        sprintf('Breite: %s', round(theTrip$latitude, 4)),
+        sprintf('Breite: %s', round(chosenTrip$latitude, 4)),
         br(),
-        sprintf('Länge: %s' ,round(theTrip$longitude, 4)),
+        sprintf('Länge: %s' , round(chosenTrip$longitude, 4)),
         br(),
         br(),
-        modalButton("myModal",
+        # Call custom button to show modal
+        modalButton(modalId,
                     label = "Details...",
-                    icon = icon("server"),)
+                    icon = icon("server"))
       )
     )
+    # Add popup to map and show it to the user
     leafletProxy(mapId) %>% addPopups(
-      lng = theTrip$longitude, lat = theTrip$latitude, popup = content, layerId = theTrip$id
+      lng = chosenTrip$longitude,
+      lat = chosenTrip$latitude,
+      popup = content,
+      layerId = chosenTrip$id
     )
   }
   
   ## Origin map
   
-  # When map is clicked, show a popup with trip info
+  # ## Set name of chosen stop as modal title
+  output$detailModalOrigTitle <-
+    renderText(paste('Start:', chosenStopOrig$name))
+  
+  # ## When map is clicked, show a popup with trip info
   observeEvent(input$mapOrig_marker_click, ({
-    cat(file = stderr(), 'mapOrig_marker_click clicked',  '\n')
     theEvent <- input$mapOrig_marker_click
-    keptTripsForStop$data <-
-      filterKeptTripsForStop(theEvent$lat, theEvent$lng)
+    # search chosen stop in dataset
+    chosenStopOrig$trips <-
+      (subset(
+        tripsOrig$kept,
+        origin_lat == theEvent$lat &
+          origin_lon == theEvent$lng
+      ))
+    # filterTripsByStop(theEvent$lat, theEvent$lng, 'mapOrig')
+    # get name of chosen stop
+    chosenStopOrig$name <- chosenStopOrig$trips[1, 3]
+    # delete all other opened popups
     leafletProxy('mapOrig') %>% clearPopups()
+    # load popup content and show it
     showTripPopup(theEvent$id, theEvent$lat, theEvent$lng, 'mapOrig')
   }))
   
-  
+  # ## Filters trips according to map's bounds, weekday, hour
   tripsInBoundsOrig <- reactive({
-    cat(file = stderr(), 'tripsInBoundsOrig called',  '\n')
+    # sanity checking
     if (is.null(input$mapOrig_bounds)) {
       return(NULL)
     }
-    
-    tripFilter$weekday <<- input$weekdayOrigin
-    
+    # weekday filter
+    tripFilterOrig$weekday <<- input$weekdayOrig
+    # map's bounds filter
     bounds <- input$mapOrig_bounds
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
-    trips$keeprows <<-
+    
+    # screen all the data by current filters
+    shouldKeepOrig$flag <<-
       (
         goevb$origin_lat >= latRng[1] & goevb$origin_lat <= latRng[2] &
           goevb$origin_lon >= lngRng[1] &
           goevb$origin_lon <= lngRng[2] &
-          goevb$day %in% tripFilter$weekday &
-          goevb$hour %in% tripFilter$hour
+          goevb$day %in% tripFilterOrig$weekday &
+          goevb$hour %in% tripFilterOrig$hour
       )
+    # construct data according to filter results
+    tripsOrig$kept <<- goevb[shouldKeepOrig$flag, , drop = FALSE]
+    tripsOrig$excluded <<-
+      goevb[!shouldKeepOrig$flag, , drop = FALSE]
     
-    #     goevbFiltered <<-
-    #       goevbFiltered[goevbFiltered$day %in% tripFilter$weekday,]
-    keptTrips <<- goevb[trips$keeprows, , drop = FALSE]
-    cat(file = stderr(), 'n keptTrips', nrow(keptTrips),  '\n')
-    excludedTrips <<- goevb[!trips$keeprows, , drop = FALSE]
+    # Aggregate trips to update the heatmap
+    AggregateAllTrips(tripsOrig, NULL, 'mapOrig')
+    # Update the heatmap
+    RedrawMap('mapOrig')
     
-    
-    if (shouldRedrawMapOrig == TRUE) {
-      cat(file = stderr(), 'Should recalculate because of checkbox changes',  '\n')
-      AggregateAllTrips(keptTrips, excludedTrips)
-      RedrawMap('mapOrig')
-      RedrawMap('mapDest')
-      shouldRedrawMapOrig <<- FALSE
-    }
     
   })
   
-  filterKeptTripsForStop <- function(lat, lng) {
-    cat(file = stderr(), 'filterKeptTripsForStop called',  '\n')
-    return(subset(keptTrips, origin_lat == lat & origin_lon == lng))
-  }
+  # observeEvent(input$weekdayOrig, ({
+  #   #shouldRedrawMapOrig <<- TRUE
+  # }))
   
-  observeEvent(input$weekdayOrigin, ({
-    shouldRedrawMapOrig <<- TRUE
-  }))
-  
-  # Precalculate the breaks we'll need for the  histograms
-  
+  # ## Detail bar plot only shows the chosen stop
   output$histOrigin <- renderPlot({
-    cat(file = stderr(), 'histOrigin renderPlot called',  '\n')
     tripsInBoundsOrig()
-    
-    if (nrow(keptTrips) < 1) {
+    # sanity checking
+    if (nrow(tripsOrig$kept) < 1) {
       return(NULL)
     }
+    # Bar Blot to show trip frequencies
     ggplot(
-      keptTrips, aes(x = hour, fill = day_f),
-      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5
+      # show filtered trips dataset
+      tripsOrig$kept,
+      # stacked bar plot (see fill)
+      aes(x = hour, fill = day_f),
+      # font sizing
+      cex.lab = 3,
+      cex.axis = 3,
+      cex.main = 1.5,
+      cex.sub = 1.5
     )  +
       geom_bar() +
+      # flip it to a horizontal one
       coord_flip() +
       scale_x_continuous(limits = c(-0.5, 23.5),
                          breaks = c(0:23)) +
+      # axis labeling
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
+      # custom font (same as ShinyDashboard)
       theme(text = element_text(
-        size = 17, family = "Source Sans Pro", colour = '#444444'
+        size = 17,
+        family = "Source Sans Pro",
+        colour = '#444444'
       )) +
+      # custom color palette
       scale_fill_brewer(palette = "Greens", name = "Tag")
   })
   
-  output$detailHistOrigin <- renderPlot({
-    cat(file = stderr(), 'detailHistOrigin renderPlot called',  '\n')
-    if (nrow(keptTripsForStop$data) < 1) {
+  # ## Detail bar plot only shows the chosen stop
+  output$detailHistOrig <- renderPlot({
+    # sanity checking
+    if (nrow(chosenStopOrig$trips) < 1) {
       return(NULL)
     }
+    # Bar Blot to show trip frequencies (similiar to histOrigin, refactoring needed)
     ggplot(
-      keptTripsForStop$data, aes(x = hour, fill = day_f),
-      cex.lab = 3, cex.axis = 3, cex.main = 1.5, cex.sub = 1.5
+      chosenStopOrig$trips,
+      # stacked bar plot (fill)
+      aes(x = hour, fill = day_f),
+      # font sizing
+      cex.lab = 3,
+      cex.axis = 3,
+      cex.main = 1.5,
+      cex.sub = 1.5
     )  +
       geom_bar() +
+      # flip it to a horizontal one
       coord_flip() +
-      # ylim(0, length(goevbFiltered[,1])) +
       scale_x_continuous(limits = c(-0.5, 23.5),
                          breaks = c(0:23)) +
+      # axis labeling
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
+      # custom font (same as ShinyDashboard)
       theme(text = element_text(
-        size = 17, family = "Source Sans Pro", colour = '#444444'
+        size = 17,
+        family = "Source Sans Pro",
+        colour = '#444444'
       )) +
+      # custom color palette
       scale_fill_brewer(palette = "Greens", name = "Tag")
   })
   
+  # ## time filter by brushing the bar plot
   observeEvent(input$hist_origin_brush, {
-    cat(file = stderr(), 'input$hist_origin_brush called',  '\n')
-    
+    # read inputs
     ymin <- trunc(input$hist_origin_brush$ymin + 0.5)
     ymax <- trunc(input$hist_origin_brush$ymax + 0.5)
-    cat(file = stderr(), 'ymin', ymin,  '\n')
-    cat(file = stderr(), 'ymax', ymax,  '\n')
     
-    tripFilter$hour <<- c(ymin:ymax)
-    shouldRedrawMapOrig <<- TRUE
+    # set filter
+    tripFilterOrig$hour <<- c(ymin:ymax)
   })
   
-  # ## Destination map
+  # similiar to code above... still needs refactoring
+  source('destController.R', local = TRUE)
   
-  observeEvent(input$mapDest_marker_click, ({
-    cat(file = stderr(), 'mapDest_marker_click observeEvent called',  '\n')
-    markerEvent <- input$mapDest_marker_click
-    
-    leafletProxy('mapDest') %>% clearPopups()
-    showTripPopup(markerEvent$id, markerEvent$lat, markerEvent$lng, 'mapDest')
-  }))
-  
+  # ## Draws heatmap circels in map
   RedrawMap <- function(mapId) {
-    cat(file = stderr(), 'RedrawMap called',  '\n')
     if (mapId == 'mapOrig') {
-      theData <- tripsOrig
+      theData <- agTripsOrig
     } else {
-      theData <- tripsDest
+      theData <- agTripsDest
     }
+    # Sanity checking
+    if ((length(theData$excluded) > 0 &&
+         nrow(theData$excluded) > 0) ||
+        (length(theData$kept) && nrow(theData$kept) > 0)) {
+      leafletProxy(mapId, data = theData) %>%
+        # clear markers only ones to avoid multiple execution
+        clearMarkers()
+    } else {
+      return(NULL)
+    }
+    # Draw circles in yellow with precalculated radius
     return(
       leafletProxy(mapId, data = theData) %>%
-        clearMarkers() %>%
         addCircleMarkers(
           theData$excluded$longitude,
           theData$excluded$latitude,
           radius = theData$excluded$freq_r,
           color = "yellow",
-          fillOpacity = 0.1,
+          fillOpacity = 0.15,
           layerId = theData$excluded$id,
           stroke = FALSE
         ) %>%
@@ -209,15 +250,9 @@ function(input, output, session) {
           fillOpacity = theData$kept$freq_a,
           layerId = theData$kept$id,
           stroke = FALSE
-        )
+        ) 
+        
+        
     )
   }
-  
-  observeEvent(input$exclude_reset, {
-    cat(file = stderr(), 'exclude_reset observeEvent called',  '\n')
-    tripFilter$hour <- c(0:23)
-    tripFilter$weekday <- c(1:7)
-    trips$keeprows <- rep(TRUE, nrow(goevb))
-    
-  })
 }

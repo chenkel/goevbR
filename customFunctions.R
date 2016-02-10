@@ -1,28 +1,73 @@
+#' NormalizeFreq
+#'
+#' Normalizes the frequency of aggregated trips
+#'
+#' The frequencies of aggregated trips are distributed unevenly.
+#' Thus a lot of stations have far more trips than others.
+#' In order to display differences on a map, the extremes values need to be trimmed.
+#'
+#' @param tripFreq  Specifies the unnormalized frequency dataset.
+
+#' @return Normalized frequencies.
+#' @export
+#'
+#' @example
+#' NormalizeFreq(locationTrips$freq)
+#'
 NormalizeFreq <- function(tripFreq) {
-  cat(file = stderr(), 'NormalizeFreq',  '\n')
   return(as.integer((log2(tripFreq) * 10) ^ (1.2)))
 }
 
+#' GenerateRadius
+#'
+#' Generates radiuses for heatmap circles based on the given frequency dataset.
+#'
+#' @param tripFreq  Specifies the frequency dataset.
+
+#' @return Radii dataset.
+#' @export
+#'
+#' @example
+#' GenerateRadius(locationTrips$freq_normalized)
+#'
 GenerateRadius <- function(tripFreq) {
-  cat(file = stderr(), 'GenerateRadius',  '\n')
   maxTrip <- max(tripFreq)
   maxCircleRadius = 20
   return(maxCircleRadius * tripFreq / maxTrip)
 }
 
+#' GenerateAlpha
+#'
+#' Generates alpha dataset for heatmap circles based on the given frequency dataset.
+#'
+#' @param tripFreq  Specifies the frequency dataset.
+
+#' @return Dataset with alpha information.
+#' @export
+#'
+#' @example
+#' GenerateAlpha(locationTrips$freq_normalized)
+#'
 GenerateAlpha <- function(tripFreq) {
-  cat(file = stderr(), 'GenerateAlpha',  '\n')
   maxTrip <- max(tripFreq) * 2
   return(tripFreq / maxTrip)
 }
 
+#' GenerateColor
+#'
+#' Generates color dataset for heatmap circles based on the given frequency dataset.
+#'
+#' @param tripFreq  Specifies the frequency dataset.
 
+#' @return Dataset with color information.
+#' @export
+#'
+#' @example
+#' GenerateColor(locationTrips$freq_normalized)
+#'
 GenerateColor <- function(tripFreq) {
-  cat(file = stderr(), 'GenerateColor',  '\n')
   maxTrip <- max(tripFreq)
   percentFreq <- tripFreq / maxTrip
-  ## Hex Lowest: 00b8e5
-  ## Hex Highest: bf0000
   resultRed <- (0 + percentFreq * (191 - 0)) / 255
   resultGreen <- (204 + percentFreq * (0 - 204)) / 255
   resultBlue <- (0 + percentFreq * (0 - 0)) / 255
@@ -31,12 +76,28 @@ GenerateColor <- function(tripFreq) {
 }
 
 
-
+#' AggregateTrips
+#'
+#' Groups all trips by location and counts the occurrences in these groups
+#'
+#' @param lat       The dataset containing latitude infromation of all trips.
+#' @param lng       The dataset containing longitude infromation of all trips.
+#' @param startId   Specifies the unique ID for the first aggregated trip. Used for Leaflet Popups later.
+#'
+#' @return Aggregated Trips with the following attributes
+#' \code{id} - identifies aggregated trip uniquely,
+#' \code{latitude}, \code{longitude} - unique for trip,
+#' \code{freq} - number of trips with the same latitude and longitude,
+#' \code{freq_normalized} - normalized frequency to avoid over-/underemphasizing
+#' \code{freq_a}, \code{freq_c}, \code{freq_r} - alpha, color and radius of aggregated trip for displaying the heatmap
+#' @export
+#'
+#' @example
+#' AggregateTrips(tripsOrig$keptin_lat, tripsOrig$keptin_lon, 0)
+#'
 AggregateTrips <- function(lat, lng, startId) {
-  cat(file = stderr(), 'Aggregates Trips',  '\n')
-  cat(file = stderr(), 'l Trips', length(lat), '\n')
+  cat(file = stderr(), 'AggregateTrips called',  '\n')
   if (is.null(lat)  || length(lat) < 1) {
-    cat(file = stderr(), 'Lat or Lng is empty',  '\n')
     return(goevb[FALSE,])
   }
   
@@ -66,63 +127,75 @@ AggregateTrips <- function(lat, lng, startId) {
   return(locationTrips)
 }
 
-AggregateAllTrips <- function(keptTrips, excludedTrips = NULL) {
-  cat(file = stderr(), 'AggregateAllTrips',  '\n')
-  # Aggregates all trips with the same origin latitude and longitude and count them.
-  # cat(file = stderr(), '!isNull', ,  '\n')
-  if (!is.null(keptTrips)  &&
-      length(keptTrips) > 0 && nrow(keptTrips) > 0) {
-    tripsOrig$kept <<-
-      AggregateTrips(keptTrips$origin_lat, keptTrips$origin_lon, 0)
-    tripsOrigLength <- nrow(tripsOrig$kept)
-    tripsDest$kept <<-
-      AggregateTrips(keptTrips$destination_lat, keptTrips$destination_lon, tripsOrigLength)
-  } else {
-    tripsOrig$kept$freq_r <<- 0
-    tripsDest$kept$freq_r <<- 0
+#' AggregateAllTrips
+#'
+#' Aggregates by origin and destination
+#'
+#' @param tripsOrig       Specifies all trips being included by the prior chosen filters.
+#' @param tripsDest   An optional dataset that contains all excluded trips by prior chosen filters.
+#'
+#' @return Global variables \code{tripsOrig} and \code{tripsDest}
+#' including aggregated kept and excluded datasets.
+#' @export
+#'
+#' @example
+#' AggregateAllTrips(tripsOrig, tripsDest)
+#'
+AggregateAllTrips <-
+  function(tripsOrig, tripsDest = NULL, mapId) {
+    if (mapId == 'mapOrig') {
+      lastIdx <- 0
+      if (!is.null(tripsOrig$kept)) {
+        agTripsOrig$kept <<-
+          AggregateTrips(tripsOrig$kept$origin_lat,
+                         tripsOrig$kept$origin_lon,
+                         lastIdx)
+        lastIdx <- nrow(tripsOrig$kept)
+      }
+      if (!is.null(tripsOrig$excluded)) {
+        agTripsOrig$excluded <<-
+          AggregateTrips(tripsOrig$excluded$origin_lat,
+                         tripsOrig$excluded$origin_lon,
+                         lastIdx)
+      }
+    } else {
+      if (!is.null(tripsDest$kept)) {
+        lastIdx <- 10000
+        agTripsDest$kept <<-
+          AggregateTrips(tripsDest$kept$destination_lat,
+                         tripsDest$kept$destination_lon,
+                         lastIdx)
+        lastIdx <- lastIdx + nrow(tripsDest$kept)
+      }
+      if (!is.null(tripsDest$excluded)) {
+        agTripsDest$excluded <<-
+          AggregateTrips(
+            tripsDest$excluded$destination_lat,
+            tripsDest$excluded$destination_lon,
+            lastIdx
+          )
+      }
+    }
   }
-  
-  if (!is.null(excludedTrips) &&
-      length(excludedTrips) > 0 && nrow(excludedTrips) > 0) {
-    tripsOrig$excluded <<-
-      AggregateTrips(excludedTrips$origin_lat, excludedTrips$origin_lon, 0)
-    tripsOrigLength <- nrow(tripsOrig$excluded)
-    tripsDest$excluded <<-
-      AggregateTrips(
-        excludedTrips$destination_lat, excludedTrips$destination_lon, tripsOrigLength
-      )
-  } else {
-    tripsOrig$excluded$freq_r <<- 0
-    tripsDest$excluded$freq_r <<- 0
-  }
-  
-}
 
 
 #' modalButton
 #'
-#' Creates a modal dialog box. \code{header} and \code{content} can
-#' include shiny inputs and outputs.
+#' Creates a button that opens the detail modal
 #'
 #' @param inputId       Specifies the input slot that will be used to access the value.
 #' @param label         The contents of the button or link–usually a text label, but you could also use any other HTML, like an image.
 #' @param icon          An optional icon to appear on the button.
-#' @param header   HTML for the header
-#' @param content  HTML for the content
 #'
 #' @return html for modal button and window
 #' @export
 #'
 #' @example
-#' # In ui.R
-#' modalButton("helpModal", "", icon = icon("info-circle"),
-#'   header = tags$h3("Help for my app"),
-#'   content = tags$p("Some detailed help"))
+#' modalButton("helpModal", "HELP", icon = icon("info-circle"))
 #'
 modalButton <-
-  function(inputId, label, icon = NULL, header = "", content = "")
+  function(inputId, label, icon = NULL)
   {
-    cat(file = stderr(), 'modalButton',  '\n')
     # create the button
     button <- tags$button(
       type = "button",
@@ -135,8 +208,28 @@ modalButton <-
     tags$html(button)
   }
 
-detailModal <- function(inputId, header = ' ', content = ' ') {
-  cat(file = stderr(), 'detailModal',  '\n')
+
+#' detailModal
+#'
+#' Creates a modal window.
+#' \code{header} and \code{content} can include shiny inputs and outputs.
+#'
+#' @param inputId       Specifies the input slot that will be used to access the value.
+#' @param header   HTML for the header
+#' @param content  HTML for the content
+#'
+#' @return html for modal window
+#' @export
+#'
+#' @example
+#' # In ui.R
+#' detailModal("helpModal", "", icon = icon("info-circle"),
+#'   header = textOutput('detailModalTitle', inline = FALSE),
+#'   content = tags$html(plotOutput("detailHistOrigin", height = 540)))
+#'
+detailModal <- function(inputId,
+                        header = ' ',
+                        content = ' ') {
   # create the window
   modal <- tags$div(
     id = inputId,
