@@ -230,29 +230,45 @@ function(input, output, session) {
     } else {
       return(NULL)
     }
-    # Draw circles in yellow with precalculated radius
-    return(
-      leafletProxy(mapId, data = theData) %>%
-        addCircleMarkers(
-          theData$excluded$longitude,
-          theData$excluded$latitude,
-          radius = theData$excluded$freq_r,
-          color = "yellow",
-          fillOpacity = 0.15,
-          layerId = theData$excluded$id,
-          stroke = FALSE
-        ) %>%
-        addCircleMarkers(
-          theData$kept$longitude,
-          theData$kept$latitude,
-          radius = theData$kept$freq_r,
-          color = theData$kept$freq_c,
-          fillOpacity = theData$kept$freq_a,
-          layerId = theData$kept$id,
-          stroke = FALSE
-        ) 
+    if (nrow(theData$excluded) < 1) {
+      return(
+        leafletProxy(mapId, data = theData) %>%
+          addCircleMarkers(
+            theData$kept$longitude,
+            theData$kept$latitude,
+            radius = theData$kept$freq_r,
+            color = theData$kept$freq_c,
+            fillOpacity = theData$kept$freq_a,
+            layerId = theData$kept$id,
+            stroke = FALSE
+          )
         
         
-    )
+      )
+    } else {
+      # Draw circles in yellow with precalculated radius
+      return(
+        leafletProxy(mapId, data = theData) %>%
+          addCircleMarkers(
+            theData$excluded$longitude,
+            theData$excluded$latitude,
+            radius = theData$excluded$freq_r,
+            color = "yellow",
+            fillOpacity = 0.05,
+            layerId = theData$excluded$id,
+            stroke = FALSE
+          ) %>%
+          addCircleMarkers(
+            theData$kept$longitude,
+            theData$kept$latitude,
+            radius = theData$kept$freq_r,
+            color = theData$kept$freq_c,
+            fillOpacity = theData$kept$freq_a,
+            layerId = theData$kept$id,
+            stroke = FALSE
+          )
+      )
+
+    }
   }
 }

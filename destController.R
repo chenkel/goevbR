@@ -97,7 +97,7 @@ output$histDestination <- renderPlot({
       family = "Source Sans Pro",
       colour = '#444444'
     )) +
-    scale_fill_brewer(palette = "Greens", name = "Tag")
+    scale_fill_brewer(palette = "Reds", name = "Tag")
 })
 
 output$detailHistDest <- renderPlot({
@@ -125,7 +125,7 @@ output$detailHistDest <- renderPlot({
       family = "Source Sans Pro",
       colour = '#444444'
     )) +
-    scale_fill_brewer(palette = "Greens", name = "Tag")
+    scale_fill_brewer(palette = "Reds", name = "Tag")
 })
 
 observeEvent(input$hist_destination_brush, {

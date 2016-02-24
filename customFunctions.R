@@ -131,8 +131,8 @@ AggregateTrips <- function(lat, lng, startId) {
 #'
 #' Aggregates by origin and destination
 #'
-#' @param tripsOrig       Specifies all trips being included by the prior chosen filters.
-#' @param tripsDest   An optional dataset that contains all excluded trips by prior chosen filters.
+#' @param tripsOrig   Specifies all kept and excluded origin trips.
+#' @param tripsDest   Specifies all kept and excluded destination trips.
 #'
 #' @return Global variables \code{tripsOrig} and \code{tripsDest}
 #' including aggregated kept and excluded datasets.
@@ -144,8 +144,8 @@ AggregateTrips <- function(lat, lng, startId) {
 AggregateAllTrips <-
   function(tripsOrig, tripsDest = NULL, mapId) {
     if (mapId == 'mapOrig') {
-      lastIdx <- 0
       if (!is.null(tripsOrig$kept)) {
+      lastIdx <- 0
         agTripsOrig$kept <<-
           AggregateTrips(tripsOrig$kept$origin_lat,
                          tripsOrig$kept$origin_lon,

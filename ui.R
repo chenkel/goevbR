@@ -12,7 +12,7 @@ body <- dashboardBody(
             width = NULL,
             status = "success",
             solidHeader = FALSE,
-            title = list(icon("map-o"), "Haltstellen"),
+            title = list(icon("map-o"), "Haltestellen"),
             leafletOutput("mapOrig", height = 540)
           )
         ),
@@ -73,7 +73,7 @@ body <- dashboardBody(
             width = NULL,
             status = "danger",
             solidHeader = FALSE,
-            title = list(icon("map-o"), "Haltstellen"),
+            title = list(icon("map-o"), "Haltestellen"),
             leafletOutput("mapDest", height = 540)
           )
         ),

@@ -41,7 +41,6 @@ agTripsOrig <- reactiveValues(kept = NULL,
                               excluded = NULL)
 # chosen bus stop (used for detailModal)
 chosenStopOrig <- reactiveValues(trips = goevb, name = ' ')
-# shouldRedrawMapOrig <- TRUE
 
 # ## Same as above (see Orig's comments)
 tripFilterDest <- reactiveValues(hour = c(0:23),
@@ -52,6 +51,5 @@ tripsDest <- reactiveValues(kept = goevb,
 agTripsDest <- reactiveValues(kept = NULL,
                               excluded = NULL)
 chosenStopDest <- reactiveValues(trips = goevb, name = ' ')
-# shouldRedrawMapDest <- TRUE
 
 source('customFunctions.R')
