@@ -246,7 +246,7 @@ function(input, output, session) {
             theData$kept$latitude,
             radius = theData$kept$freq_r,
             color = theData$kept$freq_c,
-            fillOpacity = theData$kept$freq_c,
+            fillOpacity = theData$kept$freq_a,
             layerId = theData$kept$id,
             stroke = FALSE
           ) %>%
