@@ -1,6 +1,8 @@
 # ## Install and load external packages
 source('externalLibs.R')
 
+par(family = "Source Sans Pro")
+
 # ## Import data
 goevb = read.csv(
   "goevb.csv",
@@ -21,6 +23,8 @@ goevb$day_f <-
   factor(goevb$day, labels = c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"))
 goevb$hour <- goevb$datetime$hour
 goevb$hour_f <- factor(goevb$hour)
+
+heatmapCols <- brewer.pal(8,"YlOrRd")
 
 
 # ## Initially add all trips to keptTrips

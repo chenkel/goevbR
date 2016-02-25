@@ -1,4 +1,7 @@
 body <- dashboardBody(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "customStyle.css")
+  ),
   fluidRow(
     tabBox(
       title = list(icon("bus"), "Busfahren in Göttingen"),

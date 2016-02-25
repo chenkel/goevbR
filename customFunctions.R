@@ -49,7 +49,7 @@ GenerateRadius <- function(tripFreq) {
 #' GenerateAlpha(locationTrips$freq_normalized)
 #'
 GenerateAlpha <- function(tripFreq) {
-  maxTrip <- max(tripFreq) * 2
+  maxTrip <- max(tripFreq) * 1.4
   return(tripFreq / maxTrip)
 }
 
@@ -68,11 +68,20 @@ GenerateAlpha <- function(tripFreq) {
 GenerateColor <- function(tripFreq) {
   maxTrip <- max(tripFreq)
   percentFreq <- tripFreq / maxTrip
-  resultRed <- (0 + percentFreq * (191 - 0)) / 255
-  resultGreen <- (204 + percentFreq * (0 - 204)) / 255
-  resultBlue <- (0 + percentFreq * (0 - 0)) / 255
+  resultRed <- (255 - percentFreq * (255 - 128)) / 255
+  resultGreen <- (255 - percentFreq * (255 - 0)) / 255
+  resultBlue <- (204 - percentFreq * (204 - 38)) / 255
   
-  return(rgb(resultRed, resultGreen, resultBlue))
+  theColorPal <- brewer.pal(5, 'YlOrRd')
+  theColors <- theColorPal[as.numeric(cut(tripFreq,breaks = 5))]
+  # 255
+  # 255
+  # 204
+  
+  # 128
+  # 0
+  # 38
+  return(theColors)
 }
 
 

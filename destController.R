@@ -1,18 +1,19 @@
 # ## Destination map
 # ## Set name of chosen stop as modal title
-output$detailModalDestTitle <- renderText(paste('Ziel:', chosenStopDest$name))
+output$detailModalDestTitle <-
+  renderText(paste('Ziel:', chosenStopDest$name))
 
 # observeEvent(input$mapDest_marker_click, ({
 #   #cat(file = stderr(), 'mapDest_marker_click observeEvent called',  '\n')
 #   markerEvent <- input$mapDest_marker_click
-#   
+#
 #   leafletProxy('mapDest') %>% clearPopups()
 #   showTripPopup(markerEvent$id,
 #                 markerEvent$lat,
 #                 markerEvent$lng,
 #                 'mapDest')
 # }))
-# 
+#
 # # ## Set name of chosen stop as modal title
 # output$detailModalDestTitle <- renderText(chosenStopDest$name)
 
@@ -21,11 +22,13 @@ observeEvent(input$mapDest_marker_click, ({
   #cat(file = stderr(), 'mapDest_marker_click clicked',  '\n')
   theEvent <- input$mapDest_marker_click
   chosenStopDest$trips <-
-    (subset(
-      tripsDest$kept,
-      destination_lat == theEvent$lat &
-        destination_lon == theEvent$lng
-    ))
+    (
+      subset(
+        tripsDest$kept,
+        destination_lat == theEvent$lat &
+          destination_lon == theEvent$lng
+      )
+    )
   chosenStopDest$name <- chosenStopDest$trips[1, 4]
   leafletProxy('mapDest') %>% clearPopups()
   showTripPopup(theEvent$id, theEvent$lat, theEvent$lng, 'mapDest')
@@ -45,7 +48,8 @@ tripsInBoundsDest <- reactive({
   lngRng <- range(bounds$east, bounds$west)
   shouldKeepDest$flag <<-
     (
-      goevb$destination_lat >= latRng[1] & goevb$destination_lat <= latRng[2] &
+      goevb$destination_lat >= latRng[1] &
+        goevb$destination_lat <= latRng[2] &
         goevb$destination_lon >= lngRng[1] &
         goevb$destination_lon <= lngRng[2] &
         goevb$day %in% tripFilterDest$weekday &
@@ -92,12 +96,19 @@ output$histDestination <- renderPlot({
                        breaks = c(0:23)) +
     xlab("Uhrzeit") +
     ylab("Häufigkeit") +
-    theme(text = element_text(
-      size = 17,
-      family = "Source Sans Pro",
-      colour = '#444444'
-    )) +
-    scale_fill_brewer(palette = "Reds", name = "Tag")
+    theme(
+      text = element_text(
+        size = 17,
+        family = "Source Sans Pro",
+        colour = '#444444'
+      ),
+      legend.position = c(1, 1),
+      legend.justification = c(0, 1),
+      legend.key.width = unit(1, "lines"),
+      plot.margin = unit(c(1, 5, 0.5, 0.5), "lines")
+    ) +
+    # custom color palette
+    scale_fill_brewer(palette = "Greens", name = "Tag")
 })
 
 output$detailHistDest <- renderPlot({

@@ -28,12 +28,12 @@ function(input, output, session) {
   # ## Show a popup for the chosen location with basic information
   showTripPopup <- function(id, lat, lng, mapId) {
     if (mapId == 'mapOrig') {
-      chosenTrip <- agTripsOrig$kept[agTripsOrig$kept$id == id, ]
+      chosenTrip <- agTripsOrig$kept[agTripsOrig$kept$id == id,]
       stopName <- GetStopName(lat, lng, 0)
       modalId <- 'origModal'
     } else {
       chosenTrip <-
-        agTripsDest$kept[agTripsDest$kept$id == id, ]
+        agTripsDest$kept[agTripsDest$kept$id == id,]
       stopName <- GetStopName(lat, lng, 1)
       modalId <- 'destModal'
     }
@@ -156,11 +156,17 @@ function(input, output, session) {
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
       # custom font (same as ShinyDashboard)
-      theme(text = element_text(
-        size = 17,
-        family = "Source Sans Pro",
-        colour = '#444444'
-      )) +
+      theme(
+        text = element_text(
+          size = 17,
+          family = "Source Sans Pro",
+          colour = '#444444'
+        ),
+        legend.position = c(1, 1),
+        legend.justification = c(0, 1),
+        legend.key.width = unit(1, "lines"),
+        plot.margin = unit(c(1, 5, 0.5, 0.5), "lines")
+      ) +
       # custom color palette
       scale_fill_brewer(palette = "Greens", name = "Tag")
   })
@@ -226,11 +232,13 @@ function(input, output, session) {
         (length(theData$kept) && nrow(theData$kept) > 0)) {
       leafletProxy(mapId, data = theData) %>%
         # clear markers only ones to avoid multiple execution
-        clearMarkers()
+        clearMarkers() %>%
+        clearControls()
     } else {
       return(NULL)
     }
     if (nrow(theData$excluded) < 1) {
+      qpal <- colorNumeric("YlOrRd", theData$kept$freq)
       return(
         leafletProxy(mapId, data = theData) %>%
           addCircleMarkers(
@@ -238,23 +246,28 @@ function(input, output, session) {
             theData$kept$latitude,
             radius = theData$kept$freq_r,
             color = theData$kept$freq_c,
-            fillOpacity = theData$kept$freq_a,
+            fillOpacity = theData$kept$freq_c,
             layerId = theData$kept$id,
             stroke = FALSE
+          ) %>%
+          addLegend(
+            pal = qpal,
+            values = theData$kept$freq,
+            opacity = 0.8,
+            title = "Häufigkeit"
           )
-        
-        
       )
     } else {
-      # Draw circles in yellow with precalculated radius
+      qpal <-
+        colorNumeric("YlOrRd", theData$kept$freq)      # Draw circles in yellow with precalculated radius
       return(
         leafletProxy(mapId, data = theData) %>%
           addCircleMarkers(
             theData$excluded$longitude,
             theData$excluded$latitude,
             radius = theData$excluded$freq_r,
-            color = "yellow",
-            fillOpacity = 0.05,
+            color = "gray",
+            fillOpacity = 0.2,
             layerId = theData$excluded$id,
             stroke = FALSE
           ) %>%
@@ -266,9 +279,15 @@ function(input, output, session) {
             fillOpacity = theData$kept$freq_a,
             layerId = theData$kept$id,
             stroke = FALSE
+          ) %>%
+          addLegend(
+            pal = qpal,
+            values = theData$kept$freq,
+            opacity = 0.8,
+            title = "Häufigkeit"
           )
       )
-
+      
     }
   }
 }
