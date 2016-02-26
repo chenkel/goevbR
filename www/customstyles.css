@@ -1,0 +1,23 @@
+body, .info {
+	font-family: 'Source Sans Pro' !important;
+	
+	color: #333333 !important;
+}
+
+body, .info, strong {
+  font-weight: normal !important;
+  font-size: 15px !important;
+  line-height: 20px !important;
+}
+
+.info.legend.leaflet-control{
+  font-size: 13px !important;
+}
+
+.legend i {
+  line-height: 20px !important;
+}
+
+.leaflet-control-attribution{
+  display: none;
+}

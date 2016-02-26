@@ -5,7 +5,12 @@ function(input, output, session) {
       addProviderTiles('CartoDB.Positron') %>%
       setView(lng = 9.925,
               lat = 51.54,
-              zoom = 12)
+              zoom = 12) %>%
+      addControl(
+        html = tags$div(a(icon('globe'), 'wie Ziel')),
+        position = "bottomleft",
+        layerId = 'syncOrig'
+      )
   })
   # ## Create the leaflet destination map
   output$mapDest <- renderLeaflet({
@@ -13,8 +18,22 @@ function(input, output, session) {
       addProviderTiles('CartoDB.Positron') %>%
       setView(lng = 9.925,
               lat = 51.54,
-              zoom = 12)
+              zoom = 12) %>%
+      addControl(
+        html = tags$div(a(icon('globe'), 'wie Start')),
+        position = "bottomleft",
+        layerId = 'syncDest'
+      )
   })
+  
+  onclick("syncOrig", {
+    js$syncMap('mapOrig')
+  })
+  
+  onclick("syncDest", {
+    js$syncMap('mapDest')
+  })
+  
   # ## Retrieves the stop name from given latitude and longitude from the goevb dataset.
   GetStopName <- function(lat, lng, orig0dest1) {
     if (orig0dest1 == 0) {
@@ -232,13 +251,12 @@ function(input, output, session) {
         (length(theData$kept) && nrow(theData$kept) > 0)) {
       leafletProxy(mapId, data = theData) %>%
         # clear markers only ones to avoid multiple execution
-        clearMarkers() %>%
-        clearControls()
+        clearMarkers()
     } else {
       return(NULL)
     }
     if (nrow(theData$excluded) < 1) {
-      qpal <- colorNumeric("YlOrRd", theData$kept$freq)
+      qpal <- colorBin("YlOrRd", theData$kept$freq, bins = 5)
       return(
         leafletProxy(mapId, data = theData) %>%
           addCircleMarkers(
@@ -254,12 +272,13 @@ function(input, output, session) {
             pal = qpal,
             values = theData$kept$freq,
             opacity = 0.8,
-            title = "Häufigkeit"
+            title = "Häufigkeit",
+            layerId = 'theLegend'
           )
       )
     } else {
       qpal <-
-        colorNumeric("YlOrRd", theData$kept$freq)      # Draw circles in yellow with precalculated radius
+        colorBin("YlOrRd", theData$kept$freq, bins = 5)      # Draw circles in yellow with precalculated radius
       return(
         leafletProxy(mapId, data = theData) %>%
           addCircleMarkers(
@@ -283,11 +302,11 @@ function(input, output, session) {
           addLegend(
             pal = qpal,
             values = theData$kept$freq,
-            opacity = 0.8,
-            title = "Häufigkeit"
+            opacity = 0.7,
+            title = "Häufigkeit",
+            layerId = 'theLegend'
           )
       )
-      
     }
   }
 }

@@ -41,3 +41,11 @@ library(RColorBrewer)
 if (!require("ISOweek"))
   install.packages("ISOweek")
 library(ISOweek)
+
+if (!require("shinyjs"))
+  install.packages("shinyjs")
+library(shinyjs)
+
+if (!require("V8"))
+  install.packages("V8")
+library(V8)

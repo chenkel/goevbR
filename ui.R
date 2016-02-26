@@ -1,6 +1,9 @@
 body <- dashboardBody(
   tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "customStyle.css")
+    tags$link(rel = "stylesheet", type = "text/css", href = "customstyles.css"),
+    tags$script(src = "app.js"),
+    useShinyjs(),
+    extendShinyjs('www/mapsync.js')
   ),
   fluidRow(
     tabBox(
@@ -13,7 +16,7 @@ body <- dashboardBody(
           width = 5,
           box(
             width = NULL,
-            status = "success",
+            status = "info",
             solidHeader = FALSE,
             title = list(icon("map-o"), "Haltestellen"),
             leafletOutput("mapOrig", height = 540)
@@ -23,7 +26,7 @@ body <- dashboardBody(
           width = 7,
           box(
             width = NULL,
-            status = "success",
+            status = "info",
             solidHeader = FALSE,
             title = list(
               icon("tasks"),
@@ -46,7 +49,7 @@ body <- dashboardBody(
           width = 12,
           box(
             width = NULL,
-            status = "success",
+            status = "info",
             solidHeader = TRUE,
             title = list(icon("calendar-check-o"), "Wochentage filtern..."),
             collapsed = TRUE,
