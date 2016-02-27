@@ -26,8 +26,12 @@ if (!require("extrafont"))
   install.packages("extrafont")
 library(extrafont)
 
+if (!require("devtools"))
+  install.packages("devtools")
+library(devtools)
+
 if (!require("leaflet"))
-  install.packages("leaflet")
+  devtools::install_github("rstudio/leaflet")
 library(leaflet)
 
 if (!require("dplyr"))
