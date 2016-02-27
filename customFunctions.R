@@ -155,14 +155,14 @@ AggregateAllTrips <-
     if (mapId == 'mapOrig') {
       if (!is.null(tripsOrig$kept)) {
       lastIdx <- 0
-        agTripsOrig$kept <<-
+        agTripsOrig$kept <-
           AggregateTrips(tripsOrig$kept$origin_lat,
                          tripsOrig$kept$origin_lon,
                          lastIdx)
         lastIdx <- nrow(tripsOrig$kept)
       }
       if (!is.null(tripsOrig$excluded)) {
-        agTripsOrig$excluded <<-
+        agTripsOrig$excluded <-
           AggregateTrips(tripsOrig$excluded$origin_lat,
                          tripsOrig$excluded$origin_lon,
                          lastIdx)
@@ -170,14 +170,14 @@ AggregateAllTrips <-
     } else {
       if (!is.null(tripsDest$kept)) {
         lastIdx <- 10000
-        agTripsDest$kept <<-
+        agTripsDest$kept <-
           AggregateTrips(tripsDest$kept$destination_lat,
                          tripsDest$kept$destination_lon,
                          lastIdx)
         lastIdx <- lastIdx + nrow(tripsDest$kept)
       }
       if (!is.null(tripsDest$excluded)) {
-        agTripsDest$excluded <<-
+        agTripsDest$excluded <-
           AggregateTrips(
             tripsDest$excluded$destination_lat,
             tripsDest$excluded$destination_lon,

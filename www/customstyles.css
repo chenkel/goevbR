@@ -16,8 +16,35 @@ body, .info, strong {
 
 .legend i {
   line-height: 20px !important;
+  width: 20px;
+  height: 20px;
+}
+
+i.fa.fa-globe {
+  margin-right: 0px !important;
 }
 
 .leaflet-control-attribution{
   display: none;
 }
+
+.content-wrapper {
+  background-color: #fff;
+}
+
+.content {
+  padding: 0;
+}
+
+.nav-tabs-custom>.nav-tabs>li.active{
+  border-top-color: #444;
+}
+
+a:active, a:focus, a:hover{
+  color: #0078A8;
+  cursor: pointer;
+}
+
+
+
+

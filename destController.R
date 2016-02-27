@@ -41,12 +41,12 @@ tripsInBoundsDest <- reactive({
     return(NULL)
   }
   
-  tripFilterDest$weekday <<- input$weekdayDest
+  tripFilterDest$weekday <- input$weekdayDest
   
   bounds <- input$mapDest_bounds
   latRng <- range(bounds$north, bounds$south)
   lngRng <- range(bounds$east, bounds$west)
-  shouldKeepDest$flag <<-
+  shouldKeepDest$flag <-
     (
       goevb$destination_lat >= latRng[1] &
         goevb$destination_lat <= latRng[2] &
@@ -56,21 +56,21 @@ tripsInBoundsDest <- reactive({
         goevb$hour %in% tripFilterDest$hour
     )
   
-  tripsDest$kept <<- goevb[shouldKeepDest$flag, , drop = FALSE]
-  tripsDest$excluded <<- goevb[!shouldKeepDest$flag, , drop = FALSE]
+  tripsDest$kept <- goevb[shouldKeepDest$flag, , drop = FALSE]
+  tripsDest$excluded <- goevb[!shouldKeepDest$flag, , drop = FALSE]
   
   
   #cat(file = stderr(), 'Should recalculate',  '\n')
   AggregateAllTrips(NULL, tripsDest, 'mapDest')
   RedrawMap('mapDest')
-  shouldRedrawMapDest <<- FALSE
+  shouldRedrawMapDest <- FALSE
   
 })
 
 
 
 observeEvent(input$weekdaydestination, ({
-  shouldRedrawMapDest <<- TRUE
+  shouldRedrawMapDest <- TRUE
 }))
 
 # Precalculate the breaks we'll need for the  histograms
@@ -82,6 +82,10 @@ output$histDestination <- renderPlot({
   if (nrow(tripsDest$kept) < 1) {
     return(NULL)
   }
+  if (is.null(input$hist_destination_brush) && length(tripFilterDest$hour) > 1) {
+    tripFilterDest$hour <- c(0:23)
+  }
+  
   ggplot(
     tripsDest$kept,
     aes(x = hour, fill = day_f),
@@ -90,7 +94,7 @@ output$histDestination <- renderPlot({
     cex.main = 1.5,
     cex.sub = 1.5
   )  +
-    geom_bar() +
+    geom_histogram(binwidth = 1) +
     coord_flip() +
     scale_x_continuous(limits = c(-0.5, 23.5),
                        breaks = c(0:23)) +
@@ -124,7 +128,7 @@ output$detailHistDest <- renderPlot({
     cex.main = 1.5,
     cex.sub = 1.5
   )  +
-    geom_bar() +
+    geom_histogram(binwidth = 1) +
     coord_flip() +
     # ylim(0, length(goevbFiltered[,1])) +
     scale_x_continuous(limits = c(-0.5, 23.5),
@@ -136,7 +140,7 @@ output$detailHistDest <- renderPlot({
       family = "Source Sans Pro",
       colour = '#444444'
     )) +
-    scale_fill_brewer(palette = "Reds", name = "Tag")
+    scale_fill_brewer(palette = "Greens", name = "Tag")
 })
 
 observeEvent(input$hist_destination_brush, {
@@ -147,6 +151,24 @@ observeEvent(input$hist_destination_brush, {
   #cat(file = stderr(), 'ymin', ymin,  '\n')
   #cat(file = stderr(), 'ymax', ymax,  '\n')
   
-  tripFilterDest$hour <<- c(ymin:ymax)
-  shouldRedrawMapDest <<- TRUE
+  tripFilterDest$hour <- c(ymin:ymax)
+  shouldRedrawMapDest <- TRUE
 })
+
+# When a double-click happens, check if there's no brush on the plot.
+# If so, select hour.
+observeEvent(input$hist_destination_click, {
+  if (is.null(input$hist_destination_brush)) {
+    click <- trunc(input$hist_destination_click$y + 0.5)
+    if (click >= 0 && click <= 23) {
+      tripFilterDest$hour <- c(click:click)
+    }
+  }
+})
+
+# When a double-click happens, reset the selection
+observeEvent(input$hist_destination_dblclick, {
+  tripFilterDest$hour <- c(0:23)
+})
+
+

@@ -6,11 +6,9 @@ function(input, output, session) {
       setView(lng = 9.925,
               lat = 51.54,
               zoom = 12) %>%
-      addControl(
-        html = tags$div(a(icon('globe'), 'wie Ziel')),
-        position = "bottomleft",
-        layerId = 'syncOrig'
-      )
+      addControl(html = tags$div(a(icon('globe'), 'wie Ziel')),
+                 position = "bottomleft",
+                 layerId = 'syncOrig')
   })
   # ## Create the leaflet destination map
   output$mapDest <- renderLeaflet({
@@ -19,11 +17,9 @@ function(input, output, session) {
       setView(lng = 9.925,
               lat = 51.54,
               zoom = 12) %>%
-      addControl(
-        html = tags$div(a(icon('globe'), 'wie Start')),
-        position = "bottomleft",
-        layerId = 'syncDest'
-      )
+      addControl(html = tags$div(a(icon('globe'), 'wie Start')),
+                 position = "bottomleft",
+                 layerId = 'syncDest')
   })
   
   onclick("syncOrig", {
@@ -79,7 +75,8 @@ function(input, output, session) {
       lng = chosenTrip$longitude,
       lat = chosenTrip$latitude,
       popup = content,
-      layerId = chosenTrip$id
+      layerId = chosenTrip$id,
+      options = popupOptions(closeOnClick = TRUE)
     )
   }
   
@@ -154,6 +151,9 @@ function(input, output, session) {
     if (nrow(tripsOrig$kept) < 1) {
       return(NULL)
     }
+    if (is.null(input$hist_origin_brush) && length(tripFilterOrig$hour) > 1) {
+      tripFilterOrig$hour <- c(0:23)
+    }
     # Bar Blot to show trip frequencies
     ggplot(
       # show filtered trips dataset
@@ -166,7 +166,7 @@ function(input, output, session) {
       cex.main = 1.5,
       cex.sub = 1.5
     )  +
-      geom_bar() +
+      geom_histogram(binwidth = 1) +
       # flip it to a horizontal one
       coord_flip() +
       scale_x_continuous(limits = c(-0.5, 23.5),
@@ -207,7 +207,7 @@ function(input, output, session) {
       cex.main = 1.5,
       cex.sub = 1.5
     )  +
-      geom_bar() +
+      geom_histogram(binwidth = 1) +
       # flip it to a horizontal one
       coord_flip() +
       scale_x_continuous(limits = c(-0.5, 23.5),
@@ -232,7 +232,25 @@ function(input, output, session) {
     ymax <- trunc(input$hist_origin_brush$ymax + 0.5)
     
     # set filter
-    tripFilterOrig$hour <<- c(ymin:ymax)
+    tripFilterOrig$hour <- c(ymin:ymax)
+  })
+  
+  # When a double-click happens, check if there's no brush on the plot.
+  # If so, select hour.
+  observeEvent(input$hist_origin_click, {
+    if (is.null(input$hist_origin_brush)) {
+      click <- trunc(input$hist_origin_click$y + 0.5)
+      if (click >= 0 && click <= 23) {
+        tripFilterOrig$hour <- c(click:click)
+      }
+    }
+    
+    
+  })
+  
+  # When a double-click happens, reset the selection
+  observeEvent(input$hist_origin_dblclick, {
+      tripFilterOrig$hour <- c(0:23)
   })
   
   # similiar to code above... still needs refactoring
