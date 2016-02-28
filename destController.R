@@ -45,28 +45,28 @@ tripsInBoundsDest <- reactive({
   bounds <- input$mapDest_bounds
   latRng <- range(bounds$north, bounds$south)
   lngRng <- range(bounds$east, bounds$west)
-  shouldKeepDest$flag <-
-    (
-      goevb$destination_lat >= latRng[1] &
-        goevb$destination_lat <= latRng[2] &
-        goevb$destination_lon >= lngRng[1] &
-        goevb$destination_lon <= lngRng[2] &
-        goevb$day %in% tripFilterDest$weekday &
-        goevb$hour %in% tripFilterDest$hour
-    )
   
-  tripsDest$kept <- goevb[shouldKeepDest$flag, , drop = FALSE]
-  tripsDest$excluded <- goevb[!shouldKeepDest$flag, , drop = FALSE]
-  
-  
-  #cat(file = stderr(), 'Should recalculate',  '\n')
-  AggregateAllTrips(NULL, tripsDest, 'mapDest')
-  RedrawMap('mapDest')
-
+  isolate({
+    shouldKeepDest$flag <-
+      (
+        goevb$destination_lat >= latRng[1] &
+          goevb$destination_lat <= latRng[2] &
+          goevb$destination_lon >= lngRng[1] &
+          goevb$destination_lon <= lngRng[2] &
+          goevb$day %in% tripFilterDest$weekday &
+          goevb$hour %in% tripFilterDest$hour
+      )
+    
+    tripsDest$kept <- goevb[shouldKeepDest$flag, , drop = FALSE]
+    tripsDest$excluded <- goevb[!shouldKeepDest$flag, , drop = FALSE]
+    
+    AggregateAllTrips(NULL, tripsDest, 'mapDest')
+    RedrawMap('mapDest')
+  })
 })
 
-# 
-# 
+#
+#
 # observeEvent(input$weekdaydestination, ({
 #   shouldRedrawMapDest <- TRUE
 # }))
@@ -80,7 +80,8 @@ output$histDestination <- renderPlot({
   if (nrow(tripsDest$kept) == 0) {
     return(goevb[FALSE,])
   }
-  if (is.null(input$hist_destination_brush) && length(tripFilterDest$hour) > 1) {
+  if (is.null(input$hist_destination_brush) &&
+      length(tripFilterDest$hour) > 1) {
     tripFilterDest$hour <- c(0:23)
   }
   
@@ -113,12 +114,12 @@ output$histDestination <- renderPlot({
     scale_fill_brewer(palette = "Accent", name = "Tag")
 })
 
-output$detailHistDest <- renderPlotly({
+output$detailHistDest <- renderPlot({
   #cat(file = stderr(), 'detailHistdestination renderPlot called',  '\n')
   if (nrow(chosenStopDest$trips) == 0) {
-    return(goevb[FALSE,]) 
+    return(goevb[FALSE,])
   }
-  gg <- ggplot(
+  ggplot(
     chosenStopDest$trips,
     aes(x = hour, fill = day_f),
     cex.lab = 3,
@@ -138,8 +139,6 @@ output$detailHistDest <- renderPlotly({
       family = "Source Sans Pro",
       colour = '#444444'
     )) + scale_fill_brewer(palette = "Accent", name = "Tag")
-  
-  (ggly <- ggplotly(gg))
 })
 
 observeEvent(input$hist_destination_brush, {
@@ -168,5 +167,3 @@ observeEvent(input$hist_destination_click, {
 observeEvent(input$hist_destination_dblclick, {
   tripFilterDest$hour <- c(0:23)
 })
-
-

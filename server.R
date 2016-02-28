@@ -75,12 +75,12 @@ function(input, output, session) {
   # ## Show a popup for the chosen location with basic information
   showTripPopup <- function(id, lat, lng, mapId) {
     if (mapId == 'mapOrig') {
-      chosenTrip <- agTripsOrig$kept[agTripsOrig$kept$id == id, ]
+      chosenTrip <- agTripsOrig$kept[agTripsOrig$kept$id == id,]
       stopName <- GetStopName(lat, lng, 0)
       modalId <- 'origModal'
     } else {
       chosenTrip <-
-        agTripsDest$kept[agTripsDest$kept$id == id, ]
+        agTripsDest$kept[agTripsDest$kept$id == id,]
       stopName <- GetStopName(lat, lng, 1)
       modalId <- 'destModal'
     }
@@ -139,11 +139,10 @@ function(input, output, session) {
   
   # ## Filters trips according to map's bounds, weekday, hour
   tripsInBoundsOrig <- reactive({
-    # cat(file = stderr(), 'mapOrig - tripsInBoundsOrig called',  '\n')
-    
+    # cat(file = stderr(), '2 tripsInBoundsOrig called',  '\n')
     # sanity checking
     if (is.null(input$mapOrig_bounds)) {
-      return(goevb[FALSE, ])
+      return(goevb[FALSE,])
     }
     # weekday filter
     tripFilterOrig$weekday <- input$weekdayOrig
@@ -152,25 +151,26 @@ function(input, output, session) {
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
     
-    # screen all the data by current filters
-    shouldKeepOrig$flag <<-
-      (
-        goevb$origin_lat >= latRng[1] & goevb$origin_lat <= latRng[2] &
-          goevb$origin_lon >= lngRng[1] &
-          goevb$origin_lon <= lngRng[2] &
-          goevb$day %in% tripFilterOrig$weekday &
-          goevb$hour %in% tripFilterOrig$hour
-      )
-    # construct data according to filter results
-    tripsOrig$kept <- goevb[shouldKeepOrig$flag, , drop = FALSE]
-    tripsOrig$excluded <-
-      goevb[!shouldKeepOrig$flag, , drop = FALSE]
-    
-    # Aggregate trips to update the heatmap
-    AggregateAllTrips(tripsOrig, NULL, 'mapOrig')
-    # Update the heatmap
-    
-    RedrawMap('mapOrig')
+    isolate({
+      # screen all the data by current filters
+      shouldKeepOrig$flag <<-
+        (
+          goevb$origin_lat >= latRng[1] & goevb$origin_lat <= latRng[2] &
+            goevb$origin_lon >= lngRng[1] &
+            goevb$origin_lon <= lngRng[2] &
+            goevb$day %in% tripFilterOrig$weekday &
+            goevb$hour %in% tripFilterOrig$hour
+        )
+      # construct data according to filter results
+      tripsOrig$kept <- goevb[shouldKeepOrig$flag, , drop = FALSE]
+      tripsOrig$excluded <-
+        goevb[!shouldKeepOrig$flag, , drop = FALSE]
+      
+      # Aggregate trips to update the heatmap
+      AggregateAllTrips(tripsOrig, NULL, 'mapOrig')
+      # Update the heatmap
+      RedrawMap('mapOrig')
+    })
   })
   
   # observeEvent(input$weekdayOrig, ({
@@ -179,10 +179,11 @@ function(input, output, session) {
   
   # ## Detail bar plot only shows the chosen stop
   output$histOrigin <- renderPlot({
+    # cat(file = stderr(), '1 histOrigin called',  '\n')
     tripsInBoundsOrig()
     # sanity checking
     if (nrow(tripsOrig$kept) == 0) {
-      return(goevb[FALSE, ])
+      return(goevb[FALSE,])
     }
     if (is.null(input$hist_origin_brush) &&
         length(tripFilterOrig$hour) > 1) {
@@ -225,13 +226,13 @@ function(input, output, session) {
   })
   
   # ## Detail bar plot only shows the chosen stop
-  output$detailHistOrig <- renderPlotly({
+  output$detailHistOrig <- renderPlot({
     # sanity checking
     if (nrow(chosenStopOrig$trips) == 0) {
-      return(goevb[FALSE, ])
+      return(goevb[FALSE,])
     }
     # Bar Blot to show trip frequencies (similiar to histOrigin, refactoring needed)
-    gg <- ggplot(
+    ggplot(
       chosenStopOrig$trips,
       # stacked bar plot (fill)
       aes(x = hour, fill = day_f),
@@ -257,8 +258,6 @@ function(input, output, session) {
       )) +
       # custom color palette
       scale_fill_brewer(palette = "Accent", name = "Tag")
-    
-    (ggly <- ggplotly(gg))
   })
   
   # ## time filter by brushing the bar plot
@@ -292,7 +291,7 @@ function(input, output, session) {
   
   # ## Draws heatmap circels in map
   RedrawMap <- function(mapId) {
-    # cat(file = stderr(), 'mapOrig - RedrawMap called',  '\n')
+    # cat(file = stderr(), '5 mapOrig - RedrawMap called',  '\n')
     
     if (mapId == 'mapOrig') {
       theData <- agTripsOrig
@@ -328,7 +327,8 @@ function(input, output, session) {
             layerId = 'theLegend'
           )
       )
-    } else if (!is.null(theData$excluded) && !is.null(theData$kept)) {
+    } else if (!is.null(theData$excluded) &&
+               !is.null(theData$kept)) {
       qpal <-
         colorBin("YlOrRd", theData$kept$freq, bins = 5)      # Draw circles in yellow with precalculated radius
       return(

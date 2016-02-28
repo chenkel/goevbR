@@ -39,6 +39,4 @@ agTripsDest <- reactiveValues(kept = NULL,
                               excluded = NULL)
 chosenStopDest <- reactiveValues(trips = goevb, name = ' ')
 
-shouldRedrawMap <<- TRUE
-
 source('customFunctions.R')

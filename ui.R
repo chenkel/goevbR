@@ -152,14 +152,14 @@ body <- dashboardBody(
     "origModal",
     header = textOutput('detailModalOrigTitle',
                         inline = FALSE),
-    content = tags$html(plotlyOutput("detailHistOrig",
+    content = tags$html(plotOutput("detailHistOrig",
                                    height = 540))
   ),
   detailModal(
     "destModal",
     header = textOutput('detailModalDestTitle',
                         inline = FALSE),
-    content = tags$html(plotlyOutput("detailHistDest",
+    content = tags$html(plotOutput("detailHistDest",
                                    height = 540))
   )
 )
