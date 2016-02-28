@@ -30,3 +30,11 @@ $(document).ready(function () {
     })
 });
 
+var checkDay = function (jqEl, shouldBeSelected) {
+    if (jqEl.is(':checked') && (!shouldBeSelected)) {
+        jqEl.click()
+    }
+    if (!jqEl.is(':checked') && (shouldBeSelected)) {
+        jqEl.click()
+    }
+};

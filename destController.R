@@ -38,7 +38,7 @@ observeEvent(input$mapDest_marker_click, ({
 tripsInBoundsDest <- reactive({
   cat(file = stderr(), 'tripsInBoundsDest called',  '\n')
   if (is.null(input$mapDest_bounds)) {
-    return(NULL)
+    return(goevb[FALSE,])
   }
   
   tripFilterDest$weekday <- input$weekdayDest
@@ -80,7 +80,7 @@ output$histDestination <- renderPlot({
   tripsInBoundsDest()
   
   if (nrow(tripsDest$kept) < 1) {
-    return(NULL)
+    return(goevb[FALSE,])
   }
   if (is.null(input$hist_destination_brush) && length(tripFilterDest$hour) > 1) {
     tripFilterDest$hour <- c(0:23)
@@ -112,15 +112,15 @@ output$histDestination <- renderPlot({
       plot.margin = unit(c(1, 5, 0.5, 0.5), "lines")
     ) +
     # custom color palette
-    scale_fill_brewer(palette = "Greens", name = "Tag")
+    scale_fill_brewer(palette = "Accent", name = "Tag")
 })
 
-output$detailHistDest <- renderPlot({
+output$detailHistDest <- renderPlotly({
   #cat(file = stderr(), 'detailHistdestination renderPlot called',  '\n')
   if (nrow(chosenStopDest$trips) < 1) {
-    return(NULL)
+    return(goevb[FALSE,]) 
   }
-  ggplot(
+  gg <- ggplot(
     chosenStopDest$trips,
     aes(x = hour, fill = day_f),
     cex.lab = 3,
@@ -139,8 +139,9 @@ output$detailHistDest <- renderPlot({
       size = 17,
       family = "Source Sans Pro",
       colour = '#444444'
-    )) +
-    scale_fill_brewer(palette = "Greens", name = "Tag")
+    )) + scale_fill_brewer(palette = "Accent", name = "Tag")
+  
+  (ggly <- ggplotly(gg))
 })
 
 observeEvent(input$hist_destination_brush, {

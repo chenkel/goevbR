@@ -106,7 +106,7 @@ GenerateColor <- function(tripFreq) {
 #'
 AggregateTrips <- function(lat, lng, startId) {
   cat(file = stderr(), 'AggregateTrips called',  '\n')
-  if (is.null(lat)  || length(lat) < 1) {
+  if (is.null(lat)  || length(lat) == 0) {
     return(goevb[FALSE,])
   }
   
@@ -153,36 +153,46 @@ AggregateTrips <- function(lat, lng, startId) {
 AggregateAllTrips <-
   function(tripsOrig, tripsDest = NULL, mapId) {
     if (mapId == 'mapOrig') {
-      if (!is.null(tripsOrig$kept)) {
+      cat(file = stderr(), 'mapOrig - AggregateAllTrips called',  '\n')
       lastIdx <- 0
+      if (!is.null(tripsOrig$kept) && nrow(tripsOrig$kept) > 0) {
         agTripsOrig$kept <-
           AggregateTrips(tripsOrig$kept$origin_lat,
                          tripsOrig$kept$origin_lon,
                          lastIdx)
         lastIdx <- nrow(tripsOrig$kept)
+      } else {
+        agTripsOrig$kept <- NULL
       }
-      if (!is.null(tripsOrig$excluded)) {
+      if (!is.null(tripsOrig$excluded) && nrow(tripsOrig$excluded) > 0) {
         agTripsOrig$excluded <-
           AggregateTrips(tripsOrig$excluded$origin_lat,
                          tripsOrig$excluded$origin_lon,
                          lastIdx)
+      } else {
+        agTripsOrig$excluded <- NULL
       }
     } else {
-      if (!is.null(tripsDest$kept)) {
-        lastIdx <- 10000
+      cat(file = stderr(), 'mapDest - AggregateAllTrips called',  '\n')
+      lastIdx <- 10000
+      if (!is.null(tripsDest$kept) && nrow(tripsDest$kept) > 0) {
         agTripsDest$kept <-
           AggregateTrips(tripsDest$kept$destination_lat,
                          tripsDest$kept$destination_lon,
                          lastIdx)
         lastIdx <- lastIdx + nrow(tripsDest$kept)
+      } else {
+        agTripsDest$kept <- NULL
       }
-      if (!is.null(tripsDest$excluded)) {
+      if (!is.null(tripsDest$excluded) && nrow(tripsDest$excluded) > 0) {
         agTripsDest$excluded <-
           AggregateTrips(
             tripsDest$excluded$destination_lat,
             tripsDest$excluded$destination_lon,
             lastIdx
           )
+      } else {
+        agTripsDest$excluded <- NULL
       }
     }
   }
@@ -270,7 +280,7 @@ detailModal <- function(inputId,
             class = "btn",
             `data-dismiss` = "modal",
             `aria-hidden` = "true",
-            "Close"
+            "Schließen"
           )
         )
       )

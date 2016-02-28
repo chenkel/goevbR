@@ -3,7 +3,8 @@ body <- dashboardBody(
     tags$link(rel = "stylesheet", type = "text/css", href = "customstyles.css"),
     tags$script(src = "app.js"),
     useShinyjs(),
-    extendShinyjs('www/mapsync.js')
+    extendShinyjs('www/mapsync.js'),
+    extendShinyjs('www/dayfilter.js')
   ),
   tabBox(
     title = list(icon("bus"), "Busfahren in Göttingen"),
@@ -53,8 +54,13 @@ body <- dashboardBody(
           status = "primary",
           solidHeader = TRUE,
           title = list(icon("calendar-check-o"), "Wochentage filtern..."),
-          collapsed = TRUE,
+          collapsed = FALSE,
           collapsible = TRUE,
+          actionButton("day2Orig", "Nur Wochentage (Mo-Fr)"),
+          actionButton("day3Orig", "Nur Wochenende (Sa-So)"),
+          actionButton("day0Orig", "Alle Tage ausschließen ( )"),
+          actionButton("day1Orig", "Zurücksetzen (Mo-So)"),
+          br(),
           checkboxGroupInput(
             "weekdayOrig",
             NULL,
@@ -70,6 +76,7 @@ body <- dashboardBody(
             inline = TRUE,
             selected = c(1, 2, 3, 4, 5, 6, 7)
           )
+          
         )
       )
     ))),
@@ -115,8 +122,13 @@ body <- dashboardBody(
           status = "danger",
           solidHeader = TRUE,
           title = list(icon("calendar-check-o"), "Wochentage filtern..."),
-          collapsed = TRUE,
+          collapsed = FALSE,
           collapsible = TRUE,
+          actionButton("day2Dest", "Nur Wochentage (Mo-Fr)"),
+          actionButton("day3Dest", "Nur Wochenende (Sa-So)"),
+          actionButton("day0Dest", "Alle Tage ausschließen ( )"),
+          actionButton("day1Dest", "Zurücksetzen (Mo-So)"),
+          br(),
           checkboxGroupInput(
             "weekdayDest",
             NULL,
@@ -140,34 +152,17 @@ body <- dashboardBody(
     "origModal",
     header = textOutput('detailModalOrigTitle',
                         inline = FALSE),
-    content = tags$html(plotOutput("detailHistOrig",
+    content = tags$html(plotlyOutput("detailHistOrig",
                                    height = 540))
   ),
   detailModal(
     "destModal",
     header = textOutput('detailModalDestTitle',
                         inline = FALSE),
-    content = tags$html(plotOutput("detailHistDest",
+    content = tags$html(plotlyOutput("detailHistDest",
                                    height = 540))
   )
 )
-
-
-
-sidebar <- dashboardSidebar(sidebarMenu(
-  menuItem(
-    "Dashboard",
-    tabName = "dashboard",
-    icon = icon("dashboard")
-  ),
-  menuItem(
-    "Widgets",
-    icon = icon("th"),
-    tabName = "widgets",
-    badgeLabel = "new",
-    badgeColor = "green"
-  )
-))
 
 dashboardPage(dashboardHeader(disable = TRUE),
               dashboardSidebar(disable = TRUE),
