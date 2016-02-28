@@ -1,5 +1,5 @@
 PackratFormat: 1.4
-PackratVersion: 0.4.6.19
+PackratVersion: 0.4.6.20
 RVersion: 3.2.3
 Repos: CRAN=https://cran.rstudio.com/
 
@@ -112,8 +112,8 @@ Package: devtools
 Source: CRAN
 Version: 1.10.0
 Hash: 11261bd97eda1c73da7136c4e2031e97
-Requires: digest, git2r, jsonlite, rstudioapi, whisker, withr, memoise,
-    httr
+Requires: digest, git2r, httr, jsonlite, memoise, rstudioapi, whisker,
+    withr
 
 Package: dichromat
 Source: CRAN
@@ -143,10 +143,14 @@ Version: 1.0
 Hash: 72269616f582dc675c90ecd025af2754
 
 Package: ggplot2
-Source: CRAN
-Version: 2.0.0
-Hash: 5befb1e7a9c7d0692d6c35fa02a29dbf
-Requires: MASS, digest, gtable, plyr, scales, reshape2
+Source: github
+Version: 2.1.0
+Hash: ae350804e81934a619756e81b69d78b4
+Requires: MASS, digest, gtable, plyr, reshape2, scales
+GithubRepo: ggplot2
+GithubUsername: hadley
+GithubRef: master
+GithubSha1: ab42c2ca81458b0cf78e3ba47ed5db21f4d0fc30
 
 Package: git2r
 Source: CRAN
@@ -174,7 +178,7 @@ Package: htmlwidgets
 Source: github
 Version: 0.6
 Hash: b1082993f2a0f471364c2654950f9348
-Requires: jsonlite, yaml, htmltools
+Requires: htmltools, jsonlite, yaml
 GithubRepo: htmlwidgets
 GithubUsername: ramnathv
 GithubRef: master
@@ -258,19 +262,19 @@ Hash: 8a4d4c380ac9a71b8a387bb8e586270b
 
 Package: packrat
 Source: github
-Version: 0.4.6-19
-Hash: 6ae32bb47f2aa2d66e20eac171580a4a
+Version: 0.4.6-20
+Hash: 80a588b0e4f864b80d3e7c4d2b2f13a9
 GithubRepo: packrat
 GithubUsername: rstudio
 GithubRef: master
-GithubSha1: 222058723d7a8474e670cfc1d0b0b23bd4d2996c
+GithubSha1: 374ce88fe6e0066314d0f6b536964dff152e5190
 
 Package: plotly
 Source: github
 Version: 2.4.4
 Hash: 03b979211e1d50ba01132d272628fb47
-Requires: base64enc, digest, jsonlite, magrittr, plyr, httr, scales,
-    htmlwidgets, ggplot2, viridis
+Requires: base64enc, digest, ggplot2, htmlwidgets, httr, jsonlite,
+    magrittr, plyr, scales, viridis
 GithubRepo: plotly
 GithubUsername: ropensci
 GithubRef: master
@@ -318,7 +322,7 @@ Package: scales
 Source: CRAN
 Version: 0.3.0
 Hash: 9c140be1bda3cf690f8714cfc810aa45
-Requires: RColorBrewer, Rcpp, dichromat, labeling, plyr, munsell
+Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
 
 Package: shiny
 Source: CRAN
@@ -359,7 +363,7 @@ Package: viridis
 Source: CRAN
 Version: 0.3.2
 Hash: 958172676ae77dc9c9fe26640ee51ff4
-Requires: gridExtra, ggplot2
+Requires: ggplot2, gridExtra
 
 Package: whisker
 Source: CRAN

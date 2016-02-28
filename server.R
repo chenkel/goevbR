@@ -139,7 +139,7 @@ function(input, output, session) {
   
   # ## Filters trips according to map's bounds, weekday, hour
   tripsInBoundsOrig <- reactive({
-    cat(file = stderr(), 'mapOrig - tripsInBoundsOrig called',  '\n')
+    # cat(file = stderr(), 'mapOrig - tripsInBoundsOrig called',  '\n')
     
     # sanity checking
     if (is.null(input$mapOrig_bounds)) {
@@ -203,8 +203,8 @@ function(input, output, session) {
       geom_histogram(binwidth = 1, na.rm = TRUE) +
       # flip it to a horizontal one
       coord_flip() +
-      scale_x_continuous(limits = c(-0.5, 24.5),
-                         breaks = c(0:24)) +
+      scale_x_continuous(limits = c(-0.5, 23.5),
+                         breaks = c(0:23)) +
       # axis labeling
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
@@ -244,8 +244,8 @@ function(input, output, session) {
       geom_histogram(binwidth = 1, na.rm = TRUE) +
       # flip it to a horizontal one
       coord_flip() +
-      scale_x_continuous(limits = c(-0.5, 24.5),
-                         breaks = c(0:24)) +
+      scale_x_continuous(limits = c(-0.5, 23.5),
+                         breaks = c(0:23)) +
       # axis labeling
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
@@ -264,8 +264,8 @@ function(input, output, session) {
   # ## time filter by brushing the bar plot
   observeEvent(input$hist_origin_brush, {
     # read inputs
-    ymin <- trunc(input$hist_origin_brush$ymin)
-    ymax <- trunc(input$hist_origin_brush$ymax)
+    ymin <- trunc(input$hist_origin_brush$ymin + 0.5)
+    ymax <- trunc(input$hist_origin_brush$ymax + 0.5)
     
     # set filter
     tripFilterOrig$hour <- c(ymin:ymax)
@@ -275,7 +275,7 @@ function(input, output, session) {
   # If so, select hour.
   observeEvent(input$hist_origin_click, {
     if (is.null(input$hist_origin_brush)) {
-      click <- trunc(input$hist_origin_click$y)
+      click <- trunc(input$hist_origin_click$y + 0.5)
       if (click >= 0 && click <= 23) {
         tripFilterOrig$hour <- c(click:click)
       }
@@ -292,7 +292,7 @@ function(input, output, session) {
   
   # ## Draws heatmap circels in map
   RedrawMap <- function(mapId) {
-    cat(file = stderr(), 'mapOrig - RedrawMap called',  '\n')
+    # cat(file = stderr(), 'mapOrig - RedrawMap called',  '\n')
     
     if (mapId == 'mapOrig') {
       theData <- agTripsOrig
@@ -306,7 +306,7 @@ function(input, output, session) {
     } else {
       return()
     }
-    cat(file = stderr(), 'theData$excluded: ', is.null(theData$excluded), 'theData$kept: ', is.null(theData$kept), '\n')
+    # cat(file = stderr(), 'theData$excluded: ', is.null(theData$excluded), 'theData$kept: ', is.null(theData$kept), '\n')
     if (is.null(theData$excluded) && !is.null(theData$kept)) {
       qpal <- colorBin("YlOrRd", theData$kept$freq, bins = 5)
       return(

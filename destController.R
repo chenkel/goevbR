@@ -36,7 +36,6 @@ observeEvent(input$mapDest_marker_click, ({
 
 
 tripsInBoundsDest <- reactive({
-  cat(file = stderr(), 'tripsInBoundsDest called',  '\n')
   if (is.null(input$mapDest_bounds)) {
     return(goevb[FALSE,])
   }
@@ -95,8 +94,8 @@ output$histDestination <- renderPlot({
   )  +
     geom_histogram(binwidth = 1, na.rm = TRUE) +
     coord_flip() +
-    scale_x_continuous(limits = c(-0.5, 24.5),
-                       breaks = c(-0:24)) +
+    scale_x_continuous(limits = c(-0.5, 23.5),
+                       breaks = c(0:23)) +
     xlab("Uhrzeit") +
     ylab("Häufigkeit") +
     theme(
@@ -130,8 +129,8 @@ output$detailHistDest <- renderPlotly({
     geom_histogram(binwidth = 1, na.rm = TRUE) +
     coord_flip() +
     # ylim(0, length(goevbFiltered[,1])) +
-    scale_x_continuous(limits = c(-0.5, 24.5),
-                       breaks = c(-0:24)) +
+    scale_x_continuous(limits = c(-0.5, 23.5),
+                       breaks = c(0:23)) +
     xlab("Uhrzeit") +
     ylab("Häufigkeit") +
     theme(text = element_text(
@@ -146,8 +145,8 @@ output$detailHistDest <- renderPlotly({
 observeEvent(input$hist_destination_brush, {
   #cat(file = stderr(), 'input$hist_destination_brush called',  '\n')
   
-  ymin <- trunc(input$hist_destination_brush$ymin)
-  ymax <- trunc(input$hist_destination_brush$ymax)
+  ymin <- trunc(input$hist_destination_brush$ymin + 0.5)
+  ymax <- trunc(input$hist_destination_brush$ymax + 0.5)
   #cat(file = stderr(), 'ymin', ymin,  '\n')
   #cat(file = stderr(), 'ymax', ymax,  '\n')
   
@@ -158,7 +157,7 @@ observeEvent(input$hist_destination_brush, {
 # If so, select hour.
 observeEvent(input$hist_destination_click, {
   if (is.null(input$hist_destination_brush)) {
-    click <- trunc(input$hist_destination_click$y)
+    click <- trunc(input$hist_destination_click$y + 0.5)
     if (click >= 0 && click <= 23) {
       tripFilterDest$hour <- c(click:click)
     }

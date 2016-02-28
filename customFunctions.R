@@ -105,7 +105,7 @@ GenerateColor <- function(tripFreq) {
 #' AggregateTrips(tripsOrig$keptin_lat, tripsOrig$keptin_lon, 0)
 #'
 AggregateTrips <- function(lat, lng, startId) {
-  cat(file = stderr(), 'AggregateTrips called',  '\n')
+  # cat(file = stderr(), 'AggregateTrips called',  '\n')
   if (is.null(lat)  || length(lat) == 0) {
     return(goevb[FALSE, ])
   }
@@ -153,7 +153,6 @@ AggregateTrips <- function(lat, lng, startId) {
 AggregateAllTrips <-
   function(tripsOrig, tripsDest = NULL, mapId) {
     if (mapId == 'mapOrig') {
-      cat(file = stderr(), 'mapOrig - AggregateAllTrips called',  '\n')
       lastIdx <- 0
       if (!is.null(tripsOrig$kept) && nrow(tripsOrig$kept) > 0) {
         agTripsOrig$kept <-
@@ -173,7 +172,6 @@ AggregateAllTrips <-
         agTripsOrig$excluded <- NULL
       }
     } else {
-      cat(file = stderr(), 'mapDest - AggregateAllTrips called',  '\n')
       lastIdx <- 10000
       if (!is.null(tripsDest$kept) && nrow(tripsDest$kept) > 0) {
         agTripsDest$kept <-
