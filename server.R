@@ -146,6 +146,8 @@ function(input, output, session) {
     }
     # weekday filter
     tripFilterOrig$weekday <- input$weekdayOrig
+    # hour filter
+    tripFilterOrig$hour <- tripFilterOrig$hour
     # map's bounds filter
     bounds <- input$mapOrig_bounds
     latRng <- range(bounds$north, bounds$south)

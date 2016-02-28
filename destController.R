@@ -40,7 +40,10 @@ tripsInBoundsDest <- reactive({
     return(goevb[FALSE,])
   }
   
+  # weekday filter
   tripFilterDest$weekday <- input$weekdayDest
+  # hour filter
+  tripFilterDest$hour <- tripFilterDest$hour
   
   bounds <- input$mapDest_bounds
   latRng <- range(bounds$north, bounds$south)
