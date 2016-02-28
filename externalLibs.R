@@ -1,3 +1,7 @@
+if (!require("devtools"))
+  install.packages("devtools")
+library(devtools)
+
 if (!require("shiny"))
   install.packages("shiny")
 library(shiny)
@@ -7,16 +11,12 @@ if (!require("shinydashboard"))
 library(shinydashboard)
 
 if (!require("ggplot2"))
-  install.packages("ggplot2")
+  devtools::install_github("hadley/ggplot2")
 library(ggplot2)
 
 if (!require("Cairo"))
   install.packages("Cairo")
 library(Cairo)
-
-if (!require("data.table"))
-  install.packages("data.table")
-library(data.table)
 
 if (!require("scales"))
   install.packages("scales")
@@ -25,10 +25,6 @@ library(scales)
 if (!require("extrafont"))
   install.packages("extrafont")
 library(extrafont)
-
-if (!require("devtools"))
-  install.packages("devtools")
-library(devtools)
 
 if (!require("leaflet"))
   devtools::install_github("rstudio/leaflet")
@@ -42,10 +38,6 @@ if (!require("RColorBrewer"))
   install.packages("RColorBrewer")
 library(RColorBrewer)
 
-if (!require("ISOweek"))
-  install.packages("ISOweek")
-library(ISOweek)
-
 if (!require("shinyjs"))
   install.packages("shinyjs")
 library(shinyjs)
@@ -53,7 +45,3 @@ library(shinyjs)
 if (!require("V8"))
   install.packages("V8")
 library(V8)
-
-if (!require("plotly"))
-  devtools::install_github("ropensci/plotly")
-library(plotly)

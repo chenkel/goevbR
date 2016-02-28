@@ -17,6 +17,8 @@ goevb$day[goevb$day == 0] = 7
 goevb$day_f <-
   factor(goevb$day, labels = c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"))
 goevb$hour <- goevb$datetime$hour
-goevb$hour_f <- factor(goevb$hour)
+
+# delete not needed variables
+goevb$datetime <- goevb$line <- NULL
 
 saveRDS(goevb, 'goevb.rds')
