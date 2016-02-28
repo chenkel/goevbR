@@ -11,7 +11,7 @@ body <- dashboardBody(
     id = "tabsetOrig",
     width = NULL,
     height = NULL,
-    tabPanel(list(icon("dot-circle-o"), "Start"), (fluidRow(
+    tabPanel(title = list(icon("dot-circle-o"), "Start"), value = 1, (fluidRow(
       column(
         width = 6,
         box(
@@ -76,11 +76,11 @@ body <- dashboardBody(
             inline = TRUE,
             selected = c(1, 2, 3, 4, 5, 6, 7)
           )
-          
+
         )
       )
     ))),
-    tabPanel(list(icon("flag-o"), "Ziel"),  (fluidRow(
+    tabPanel(title = list(icon("flag-o"), "Ziel"), value = 2,  (fluidRow(
       column(
         width = 6,
         box(
@@ -111,7 +111,7 @@ body <- dashboardBody(
             hover = "hist_destination_hover",
             brush = brushOpts(id = "hist_destination_brush",
                               direction = "y")
-            
+
           )
         )
       ),

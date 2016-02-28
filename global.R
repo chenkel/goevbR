@@ -1,31 +1,14 @@
+options(shiny.autoreload = FALSE, shiny.trace = FALSE, warn = 0)
+
 # ## Install and load external packages
 source('externalLibs.R')
 
-par(family = "Source Sans Pro")
+# load preprocessed data from RData format
+# (see importGoevbData.R for details on the import procedure)
+goevb <- readRDS("goevb.rds")
 
-# ## Import data
-goevb = read.csv(
-  "goevb.csv",
-  sep = ",",
-  fileEncoding = "UTF-8",
-  stringsAsFactors = FALSE
-)
-
-# ## Converting the date to a recognizable format
-goevb$datetime <-
-  strptime(goevb$datetime, format = '%d/%m/%Y:%H:%M:%S')
-
-# ## Get the day and hour of each trip
-goevb$day <- goevb$datetime$wday
-# start week by Monday(1) and end by Sunday(7)
-goevb$day[goevb$day == 0] = 7
-goevb$day_f <-
-  factor(goevb$day, labels = c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"))
-goevb$hour <- goevb$datetime$hour
-goevb$hour_f <- factor(goevb$hour)
-
-heatmapCols <- brewer.pal(8,"YlOrRd")
-
+# Define heatmap color palate
+heatmapCols <- brewer.pal(8, "YlOrRd")
 
 # ## Initially add all trips to keptTrips
 

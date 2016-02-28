@@ -73,7 +73,7 @@ GenerateColor <- function(tripFreq) {
   resultBlue <- (204 - percentFreq * (204 - 38)) / 255
   
   theColorPal <- brewer.pal(5, 'YlOrRd')
-  theColors <- theColorPal[as.numeric(cut(tripFreq,breaks = 5))]
+  theColors <- theColorPal[as.numeric(cut(tripFreq, breaks = 5))]
   # 255
   # 255
   # 204
@@ -107,7 +107,7 @@ GenerateColor <- function(tripFreq) {
 AggregateTrips <- function(lat, lng, startId) {
   cat(file = stderr(), 'AggregateTrips called',  '\n')
   if (is.null(lat)  || length(lat) == 0) {
-    return(goevb[FALSE,])
+    return(goevb[FALSE, ])
   }
   
   locationTrips <- as.data.frame(table(lat, lng))

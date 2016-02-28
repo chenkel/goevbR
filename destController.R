@@ -63,15 +63,14 @@ tripsInBoundsDest <- reactive({
   #cat(file = stderr(), 'Should recalculate',  '\n')
   AggregateAllTrips(NULL, tripsDest, 'mapDest')
   RedrawMap('mapDest')
-  shouldRedrawMapDest <- FALSE
-  
+
 })
 
-
-
-observeEvent(input$weekdaydestination, ({
-  shouldRedrawMapDest <- TRUE
-}))
+# 
+# 
+# observeEvent(input$weekdaydestination, ({
+#   shouldRedrawMapDest <- TRUE
+# }))
 
 # Precalculate the breaks we'll need for the  histograms
 
@@ -79,7 +78,7 @@ output$histDestination <- renderPlot({
   #cat(file = stderr(), 'histDestination renderPlot called',  '\n')
   tripsInBoundsDest()
   
-  if (nrow(tripsDest$kept) < 1) {
+  if (nrow(tripsDest$kept) == 0) {
     return(goevb[FALSE,])
   }
   if (is.null(input$hist_destination_brush) && length(tripFilterDest$hour) > 1) {
@@ -94,10 +93,10 @@ output$histDestination <- renderPlot({
     cex.main = 1.5,
     cex.sub = 1.5
   )  +
-    geom_histogram(binwidth = 1) +
+    geom_histogram(binwidth = 1, na.rm = TRUE) +
     coord_flip() +
-    scale_x_continuous(limits = c(-0.5, 23.5),
-                       breaks = c(0:23)) +
+    scale_x_continuous(limits = c(-0.5, 24.5),
+                       breaks = c(-0:24)) +
     xlab("Uhrzeit") +
     ylab("Häufigkeit") +
     theme(
@@ -117,7 +116,7 @@ output$histDestination <- renderPlot({
 
 output$detailHistDest <- renderPlotly({
   #cat(file = stderr(), 'detailHistdestination renderPlot called',  '\n')
-  if (nrow(chosenStopDest$trips) < 1) {
+  if (nrow(chosenStopDest$trips) == 0) {
     return(goevb[FALSE,]) 
   }
   gg <- ggplot(
@@ -128,11 +127,11 @@ output$detailHistDest <- renderPlotly({
     cex.main = 1.5,
     cex.sub = 1.5
   )  +
-    geom_histogram(binwidth = 1) +
+    geom_histogram(binwidth = 1, na.rm = TRUE) +
     coord_flip() +
     # ylim(0, length(goevbFiltered[,1])) +
-    scale_x_continuous(limits = c(-0.5, 23.5),
-                       breaks = c(0:23)) +
+    scale_x_continuous(limits = c(-0.5, 24.5),
+                       breaks = c(-0:24)) +
     xlab("Uhrzeit") +
     ylab("Häufigkeit") +
     theme(text = element_text(
@@ -147,20 +146,19 @@ output$detailHistDest <- renderPlotly({
 observeEvent(input$hist_destination_brush, {
   #cat(file = stderr(), 'input$hist_destination_brush called',  '\n')
   
-  ymin <- trunc(input$hist_destination_brush$ymin + 0.5)
-  ymax <- trunc(input$hist_destination_brush$ymax + 0.5)
+  ymin <- trunc(input$hist_destination_brush$ymin)
+  ymax <- trunc(input$hist_destination_brush$ymax)
   #cat(file = stderr(), 'ymin', ymin,  '\n')
   #cat(file = stderr(), 'ymax', ymax,  '\n')
   
   tripFilterDest$hour <- c(ymin:ymax)
-  shouldRedrawMapDest <- TRUE
 })
 
 # When a double-click happens, check if there's no brush on the plot.
 # If so, select hour.
 observeEvent(input$hist_destination_click, {
   if (is.null(input$hist_destination_brush)) {
-    click <- trunc(input$hist_destination_click$y + 0.5)
+    click <- trunc(input$hist_destination_click$y)
     if (click >= 0 && click <= 23) {
       tripFilterDest$hour <- c(click:click)
     }

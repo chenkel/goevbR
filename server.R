@@ -171,11 +171,6 @@ function(input, output, session) {
     # Update the heatmap
     
     RedrawMap('mapOrig')
-    
-    
-    
-    
-    
   })
   
   # observeEvent(input$weekdayOrig, ({
@@ -205,11 +200,11 @@ function(input, output, session) {
       cex.main = 1.5,
       cex.sub = 1.5
     )  +
-      geom_histogram(binwidth = 1) +
+      geom_histogram(binwidth = 1, na.rm = TRUE) +
       # flip it to a horizontal one
       coord_flip() +
-      scale_x_continuous(limits = c(-0.5, 23.5),
-                         breaks = c(0:23)) +
+      scale_x_continuous(limits = c(-0.5, 24.5),
+                         breaks = c(0:24)) +
       # axis labeling
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
@@ -246,11 +241,11 @@ function(input, output, session) {
       cex.main = 1.5,
       cex.sub = 1.5
     )  +
-      geom_histogram(binwidth = 1) +
+      geom_histogram(binwidth = 1, na.rm = TRUE) +
       # flip it to a horizontal one
       coord_flip() +
-      scale_x_continuous(limits = c(-0.5, 23.5),
-                         breaks = c(0:23)) +
+      scale_x_continuous(limits = c(-0.5, 24.5),
+                         breaks = c(0:24)) +
       # axis labeling
       xlab("Uhrzeit") +
       ylab("Häufigkeit") +
@@ -269,8 +264,8 @@ function(input, output, session) {
   # ## time filter by brushing the bar plot
   observeEvent(input$hist_origin_brush, {
     # read inputs
-    ymin <- trunc(input$hist_origin_brush$ymin + 0.5)
-    ymax <- trunc(input$hist_origin_brush$ymax + 0.5)
+    ymin <- trunc(input$hist_origin_brush$ymin)
+    ymax <- trunc(input$hist_origin_brush$ymax)
     
     # set filter
     tripFilterOrig$hour <- c(ymin:ymax)
@@ -280,13 +275,11 @@ function(input, output, session) {
   # If so, select hour.
   observeEvent(input$hist_origin_click, {
     if (is.null(input$hist_origin_brush)) {
-      click <- trunc(input$hist_origin_click$y + 0.5)
+      click <- trunc(input$hist_origin_click$y)
       if (click >= 0 && click <= 23) {
         tripFilterOrig$hour <- c(click:click)
       }
     }
-    
-    
   })
   
   # When a double-click happens, reset the selection

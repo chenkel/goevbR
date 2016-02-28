@@ -57,4 +57,3 @@ library(V8)
 if (!require("plotly"))
   devtools::install_github("ropensci/plotly")
 library(plotly)
-

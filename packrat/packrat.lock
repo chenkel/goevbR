@@ -108,6 +108,13 @@ Version: 1.9.6
 Hash: f92ef1f73afa43bf6fd69a22f3794abd
 Requires: chron
 
+Package: devtools
+Source: CRAN
+Version: 1.10.0
+Hash: 11261bd97eda1c73da7136c4e2031e97
+Requires: digest, git2r, jsonlite, rstudioapi, whisker, withr, memoise,
+    httr
+
 Package: dichromat
 Source: CRAN
 Version: 2.0-0
@@ -139,7 +146,18 @@ Package: ggplot2
 Source: CRAN
 Version: 2.0.0
 Hash: 5befb1e7a9c7d0692d6c35fa02a29dbf
-Requires: MASS, digest, gtable, plyr, reshape2, scales
+Requires: MASS, digest, gtable, plyr, scales, reshape2
+
+Package: git2r
+Source: CRAN
+Version: 0.13.1
+Hash: 10b695e315f922046c7d56b9dc7150db
+
+Package: gridExtra
+Source: CRAN
+Version: 2.0.0
+Hash: 9be37a2d3b6a427d8a3d2a42f2b0bc01
+Requires: gtable
 
 Package: gtable
 Source: CRAN
@@ -156,7 +174,7 @@ Package: htmlwidgets
 Source: github
 Version: 0.6
 Hash: b1082993f2a0f471364c2654950f9348
-Requires: htmltools, jsonlite, yaml
+Requires: jsonlite, yaml, htmltools
 GithubRepo: htmlwidgets
 GithubUsername: ramnathv
 GithubRef: master
@@ -167,6 +185,12 @@ Source: CRAN
 Version: 1.3.3
 Hash: d440b2e539ccef77b9105051291a7628
 Requires: Rcpp
+
+Package: httr
+Source: CRAN
+Version: 1.1.0
+Hash: 27ffb4b4dbb8ac4019126070d66910fc
+Requires: R6, curl, jsonlite, mime, openssl
 
 Package: jsonlite
 Source: CRAN
@@ -210,6 +234,12 @@ Version: 0.7.7
 Hash: fea2343a1119d61b0cc5c0a950d103a3
 Requires: mime
 
+Package: memoise
+Source: CRAN
+Version: 1.0.0
+Hash: 56e7087c3559eb7ba72a9afb349bf896
+Requires: digest
+
 Package: mime
 Source: CRAN
 Version: 0.4
@@ -221,6 +251,11 @@ Version: 0.4.3
 Hash: f96d896947fcaf9b6d0074002e9f4f9d
 Requires: colorspace
 
+Package: openssl
+Source: CRAN
+Version: 0.9.1
+Hash: 8a4d4c380ac9a71b8a387bb8e586270b
+
 Package: packrat
 Source: github
 Version: 0.4.6-19
@@ -229,6 +264,17 @@ GithubRepo: packrat
 GithubUsername: rstudio
 GithubRef: master
 GithubSha1: 222058723d7a8474e670cfc1d0b0b23bd4d2996c
+
+Package: plotly
+Source: github
+Version: 2.4.4
+Hash: 03b979211e1d50ba01132d272628fb47
+Requires: base64enc, digest, jsonlite, magrittr, plyr, httr, scales,
+    htmlwidgets, ggplot2, viridis
+GithubRepo: plotly
+GithubUsername: ropensci
+GithubRef: master
+GithubSha1: b79e9d2fb28e5b5c7f6189a898ce2dc46c57e867
 
 Package: plyr
 Source: CRAN
@@ -272,7 +318,7 @@ Package: scales
 Source: CRAN
 Version: 0.3.0
 Hash: 9c140be1bda3cf690f8714cfc810aa45
-Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
+Requires: RColorBrewer, Rcpp, dichromat, labeling, plyr, munsell
 
 Package: shiny
 Source: CRAN
@@ -308,6 +354,22 @@ Source: CRAN
 Version: 1.0.0
 Hash: 2676dd5f88890910962b733b0f9540e1
 Requires: magrittr, stringi
+
+Package: viridis
+Source: CRAN
+Version: 0.3.2
+Hash: 958172676ae77dc9c9fe26640ee51ff4
+Requires: gridExtra, ggplot2
+
+Package: whisker
+Source: CRAN
+Version: 0.3-2
+Hash: 803d662762e532705c2c066a82d066e7
+
+Package: withr
+Source: CRAN
+Version: 1.0.1
+Hash: e3d37838719e5d66652364e2aefebcee
 
 Package: xtable
 Source: CRAN
