@@ -1,6 +1,6 @@
 # ## Import script
 goevb = read.csv(
-  "goevb.csv",
+  "data/goevb.csv",
   sep = ",",
   fileEncoding = "UTF-8",
   stringsAsFactors = FALSE
@@ -21,4 +21,4 @@ goevb$hour <- goevb$datetime$hour
 # delete not needed variables
 goevb$datetime <- goevb$line <- NULL
 
-saveRDS(goevb, 'goevb.rds')
+saveRDS(goevb, 'data/goevb.rds')

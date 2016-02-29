@@ -45,8 +45,6 @@ body <- dashboardBody(
           )
         )
       ),
-      # column(width = 7,
-      #        actionButton("exclude_reset", "Reset"))
       column(
         width = 12,
         box(

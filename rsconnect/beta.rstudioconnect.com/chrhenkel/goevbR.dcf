@@ -2,8 +2,8 @@ name: goevbR
 account: chrhenkel
 server: beta.rstudioconnect.com
 appId: 534
-bundleId: 914
+bundleId: 917
 url: https://beta.rstudioconnect.com/chrhenkel/goevbR/
-when: 1456694023.24659
+when: 1456757935.25178
 asMultiple: FALSE
 asStatic: FALSE
