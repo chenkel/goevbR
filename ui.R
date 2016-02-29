@@ -7,7 +7,7 @@ body <- dashboardBody(
     extendShinyjs('www/dayfilter.js')
   ),
   tabBox(
-    title = list(icon("bus"), "Busfahren in Göttingen"),
+    title = list(icon("bus"), "Busfahren in Göttingen ", icon("info-circle")),
     id = "tabsetOrig",
     width = NULL,
     height = NULL,
@@ -30,9 +30,9 @@ body <- dashboardBody(
           solidHeader = FALSE,
           title = list(
             icon("tasks"),
-            "Verteilung der Fahrten des sichtbaren Kartenausschnitts     (",
+            "Verteilung der Datenpunkte des sichtbaren Kartenausschnitts     [",
             icon("question-circle"),
-             ")"
+             "]"
           ),
           plotOutput(
             "histOrigin",
@@ -99,9 +99,9 @@ body <- dashboardBody(
           solidHeader = FALSE,
           title = list(
             icon("tasks"),
-            "Verteilung der Fahrten des sichtbaren Kartenausschnitts     (",
+            "Verteilung der Datenpunkte des sichtbaren Kartenausschnitts     [",
             icon("question-circle"),
-            ")"
+            "]"
           ),
           plotOutput(
             "histDestination",

@@ -1,6 +1,5 @@
 $(document).ready(function () {
-    console.log("app.js loaded");
-    var popupTemplate =
+    var barplotHelpModal =
         '<div class="modal fade">' +
         '  <div class="modal-dialog">' +
         '    <div class="modal-content">' +
@@ -25,8 +24,33 @@ $(document).ready(function () {
         '  </div>' +
         '</div>';
 
+    var appHelpModal =
+        '<div class="modal fade">' +
+        '  <div class="modal-dialog">' +
+        '    <div class="modal-content">' +
+        '      <div class="modal-header">' +
+        '        <button type="button" class="close" data-dismiss="modal">&times;</button>' +
+        '        <h4 class="modal-title">Busfahren in Göttingen</h4>' +
+        '      </div>' +
+        '      <div class="modal-body">' +
+        '           Der Inhalt dieser Seite beschränkt sich auf die Darstellung erhobener Daten zur Abfrage von Fahrplaninformationen der Busverbindungen in Göttingen.' +
+        '           <br/>' +
+        ' Start- und Zielpunkte werden getrennt voneinander dargestellt.' +
+        '           <br/>' +
+        '      </div>' +
+        '      <div class="modal-footer">' +
+        '        <button type="button" class="btn btn-link" data-dismiss="modal">Okay</button>' +
+        '      </div>' +
+        '    </div>' +
+        '  </div>' +
+        '</div>';
+
     $('i.fa.fa-question-circle').click(function () {
-        $(popupTemplate).modal();
+        $(barplotHelpModal).modal();
+    });
+
+    $('i.fa.fa-info-circle').click(function () {
+        $(appHelpModal).modal();
     })
 });
 
