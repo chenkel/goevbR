@@ -71,7 +71,7 @@ GenerateColor <- function(tripFreq) {
   nTripsFreq <- length(tripFreq)
   if (nTripsFreq == 1) {
     theColors <- theColorPal[3]
-  } else {
+  } else if (nTripsFreq > 1) {
     theBreaks <- min(c(nTripsFreq, 5))
     theColors <-
       theColorPal[as.numeric(cut(x = tripFreq, breaks = theBreaks))]

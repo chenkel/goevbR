@@ -45,3 +45,4 @@ if (!require("V8"))
   # needed to include own custom js functions
   install.packages("V8")
 library(V8)
+
